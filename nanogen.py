@@ -2,8 +2,9 @@ import numpy as np
 from scipy import *
 import subprocess
 import time
-## PARAMETERS
-def tubeGenerator(FILENAME):
+
+#VMD generation of nanotube and periodic boundary conditions?
+def tubeGenerator(filename):
 	# Opening a pipe to VMD in the shell
 	VMDin=subprocess.Popen(['vmd','-dispdev', 'none'], stdin=subprocess.PIPE)
 
@@ -11,10 +12,11 @@ def tubeGenerator(FILENAME):
 	packages = 'package require nanotube\n'
 	nanotube = 'nanotube -l 10 -n 4 -m 4\n'
 	selectAll = 'set all [ atomselect top all ]\n'
-	writePsf = '$all writepsf '+FILENAME+'.psf\n'
-	writePdb = '$all writepdb '+FILENAME+'.pdb\n'
+	writePsf = '$all writepsf '+filename+'.psf\n'
+	writePdb = '$all writepdb '+filename+'.pdb\n'
 
-	### Not working... need gui?
+
+	# ## Not working... need gui?
 	# periodic = 'mol new {'+FILENAME+'.pdb} type {pdb} first 0 last -1 step 1 waitfor -1 autobonds 0\n'
 	# loop = 'animate style Loop'
 	# periodic2 = 'mol addfile {'+FILENAME+'.psf} type {psf} first 0 last -1 step 1 waitfor -1 autobonds 0\n'
@@ -37,7 +39,31 @@ def tubeGenerator(FILENAME):
 	if VMDin.returncode==0:
 		print "finished"
 
-def main(FILENAME):
-	tubeGenerator(FILENAME)
+def simulationWriter(filename, output = None, temp = None, basis = None):
+	if temp is None:
+		temp = 300
+	if output is None:
+		output = 'sim_short_fixed'
+	if basis = None:
+		basis = []
+
+	#Read in lines of simulation file
+	inFile = open('sim_short.conf','r')
+	simLines = inFile.readlines()
+	inFile.close()
+
+	simLines[11] = 'structure          '+filename+'-per.psf\n'
+	simLines[12] = 'coordinates        '+filename+'-per.pdb\n'
+	simLines[14] = 'set temperature    '+str(temp)+'\n'
+	simLines[15] = 'set outputname     '+output+'\n'
+
+	#Write contents out to original file
+	outFile = open('sim_short.conf','w')
+	outFile.writelines(simLines)
+	outFile.close()
+
+
+def main(filename):
+	tubeGenerator(filename)
 
 
