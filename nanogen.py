@@ -39,6 +39,11 @@ def tubeGenerator(filename):
 	if VMDin.returncode==0:
 		print "finished"
 
+#Generates periodic boundary conditions to join the top of a nanotube to the bottom of a nanotube
+def bondGen():
+	
+
+
 def simulationWriter(filename, output = None, temp = None, basis = None):
 	if temp is None:
 		temp = 300
