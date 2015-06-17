@@ -9,25 +9,34 @@ def tubeGenerator(filename):
 	VMDin=subprocess.Popen(['vmd','-dispdev', 'none'], stdin=subprocess.PIPE)
 
 	# Commands as string inputs to run into the subprocess VMDin
-	packages = 'package require nanotube\n'
+	package1 = 'package require nanotube\n'
+	package2 = 'package require pbctools\n'
 	nanotube = 'nanotube -l 10 -n 4 -m 4\n'
+
+	box = 'pbc box -on\n'
+	boxCenter = 'pbc box -center com\n'
+	basisFile = 'set out [open '+filename+'_basis.txt w]\n'
+	basisWrite = 'foreach n [split $cell " "] {puts $out $n}\n'
+	basisClose = 'close $out\n'
+
+	wrap = 'pbc wrap -center com\n'
+
 	selectAll = 'set all [ atomselect top all ]\n'
 	writePsf = '$all writepsf '+filename+'.psf\n'
 	writePdb = '$all writepdb '+filename+'.pdb\n'
 
 
-	# ## Not working... need gui?
-	# periodic = 'mol new {'+FILENAME+'.pdb} type {pdb} first 0 last -1 step 1 waitfor -1 autobonds 0\n'
-	# loop = 'animate style Loop'
-	# periodic2 = 'mol addfile {'+FILENAME+'.psf} type {psf} first 0 last -1 step 1 waitfor -1 autobonds 0\n'
-	# periodic3 = 'mol addfile {'+FILENAME+'.pdb} type {pdb} first 0 last -1 step 1 waitfor -1 autobonds 0\n'
-	# periodic4 = 'animate write psf {'+FILENAME+'-per-prebond.psf} beg 0 end 0 skip 1\n'
-	# periodic5 = 'animate write pdb {'+FILENAME+'-per-prebond.pdb} beg 0 end 0 skip 1\n'
-	# periodic6 = 'mol new {'+FILENAME+'-per.psf} type {psf} first 0 last -1 step 1 waitfor -1 autobonds 0\n'
-	# periodic7 = 'mol addfile {'+FILENAME+'-per.pdb} type {pdb} first 0 last -1 step 1 waitfor -1 autobonds 0'
-
-	VMDin.stdin.write(packages)
+	VMDin.stdin.write(package1)
+	VMDin.stdin.write(package2)
 	VMDin.stdin.write(nanotube)
+
+	VMDin.stdin.write(box)
+	VMDin.stdin.write(boxCenter)
+	VMDin.stdin.write(basisFile)
+	VMDin.stdin.write(basisWrite)
+	VMDin.stdin.write(basisClose)
+	VMDin.stdin.write(wrap)
+
 	VMDin.stdin.write(selectAll)
 	VMDin.stdin.write(writePsf)
 	VMDin.stdin.write(writePdb)
@@ -39,10 +48,17 @@ def tubeGenerator(filename):
 	if VMDin.returncode==0:
 		print "finished"
 
-#Generates periodic boundary conditions to join the top of a nanotube to the bottom of a nanotube
-def bondGen():
-	
+#finds cell basis
+def cellBasis(filename):
+	basisFile = open(filename+'_basis.txt','r')
+	basisLines = basisFile.readlines()
+	basisFile.close()
 
+	xVec = eval(basisLines[0].strip("{\n"))
+	yVec = eval(basisLines[1].strip("\n"))
+	zVec = eval(basisLines[2].strip("\n"))
+	
+	return xVec, yVec, zVec
 
 def simulationWriter(filename, output = None, temp = None, basis = None):
 	if temp is None:
