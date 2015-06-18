@@ -4,14 +4,14 @@ import subprocess
 import time
 
 #VMD generation of nanotube and periodic boundary conditions
-def tubeGenerator(fileIn, fileOut, l, n, m):
+def tubeGen(inFile, outFile, l, n, m):
 	# Opening a pipe to VMD in the shell
 	VMDin=subprocess.Popen(['vmd','-dispdev', 'none'], stdin=subprocess.PIPE)
 
 	# runs CNTtools.tcl script to generate nanotube and generate PBCs
 	CNTtools = 'package require CNTtools 1.0\n'
-	genNT = 'genNT '+fileIn+' '+str(l)+' '+str(n)+' '+str(m)+'\n'
-	pbcNT = 'pbcNT '+fileIn+' '+fileOut+' default\n'
+	genNT = 'genNT '+inFile+' '+str(l)+' '+str(n)+' '+str(m)+'\n'
+	pbcNT = 'pbcNT '+inFile+' '+outFile+' default\n'
 
 	# run commands through pipe and saves to file
 	VMDin.stdin.write(sourceCNT)
@@ -27,24 +27,25 @@ def tubeGenerator(fileIn, fileOut, l, n, m):
 		print "finished"
 
 # find cell basis
-# def cellBasis(filename):
-# 	basisFile = open(filename+'_basis.txt','r')
-# 	basisLines = basisFile.readlines()
-# 	basisFile.close()
+def getCNTBasis(outFile):
+	basisFile = open(filename+'-prebond.pdb','r')
+	basisLines = basisFile.readlines()
+	basisFile.close()
 
-# 	xVec = eval(basisLines[0].strip("{\n"))
-# 	yVec = eval(basisLines[1].strip("\n"))
-# 	zVec = eval(basisLines[2].strip("\n"))
+	basis = basisLines[0].split(" ")
+	xVec = eval(basis[2])
+	yVec = eval(basis[4])
+	zVec = eval(basis[6])
 	
-# 	return xVec, yVec, zVec
+	return xVec, yVec, zVec
 
-def simulationWriter(filename, output = None, temp = None, basis = None):
+def simWrite(outFile, output = None, temp = None):
+	x,y,z = getCNTBasis(filename)
+
 	if temp is None:
 		temp = 300
 	if output is None:
-		output = 'sim_short_fixed'
-	if basis is None:
-		basis = []
+		output = 'sim_short'
 
 	#Read in lines of simulation file
 	inFile = open('sim_short.conf','r')
@@ -62,7 +63,7 @@ def simulationWriter(filename, output = None, temp = None, basis = None):
 	outFile.close()
 
 
-def main(filename):
-	tubeGenerator(filename)
+def main(inFile,outFile,l,n,m):
+	tubeGen(inFile,outFile,l,n,m)
 
 
