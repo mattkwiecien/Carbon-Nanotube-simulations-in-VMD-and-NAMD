@@ -3,43 +3,21 @@ from scipy import *
 import subprocess
 import time
 
-#VMD generation of nanotube and periodic boundary conditions?
-def tubeGenerator(filename):
+#VMD generation of nanotube and periodic boundary conditions
+def tubeGenerator(fileIn, fileOut, l, n, m):
 	# Opening a pipe to VMD in the shell
 	VMDin=subprocess.Popen(['vmd','-dispdev', 'none'], stdin=subprocess.PIPE)
 
-	# Commands as string inputs to run into the subprocess VMDin
-	package1 = 'package require nanotube\n'
-	package2 = 'package require pbctools\n'
-	nanotube = 'nanotube -l 10 -n 4 -m 4\n'
+	# runs CNTtools.tcl script to generate nanotube and generate PBCs
+	CNTtools = 'package require CNTtools 1.0\n'
+	genNT = 'genNT '+fileIn+' '+str(l)+' '+str(n)+' '+str(m)+'\n'
+	pbcNT = 'pbcNT '+fileIn+' '+fileOut+' default\n'
 
-	box = 'pbc box -on\n'
-	boxCenter = 'pbc box -center com\n'
-	basisFile = 'set out [open '+filename+'_basis.txt w]\n'
-	basisWrite = 'foreach n [split $cell " "] {puts $out $n}\n'
-	basisClose = 'close $out\n'
-
-	wrap = 'pbc wrap -center com\n'
-
-	selectAll = 'set all [ atomselect top all ]\n'
-	writePsf = '$all writepsf '+filename+'.psf\n'
-	writePdb = '$all writepdb '+filename+'.pdb\n'
-
-
-	VMDin.stdin.write(package1)
-	VMDin.stdin.write(package2)
-	VMDin.stdin.write(nanotube)
-
-	VMDin.stdin.write(box)
-	VMDin.stdin.write(boxCenter)
-	VMDin.stdin.write(basisFile)
-	VMDin.stdin.write(basisWrite)
-	VMDin.stdin.write(basisClose)
-	VMDin.stdin.write(wrap)
-
-	VMDin.stdin.write(selectAll)
-	VMDin.stdin.write(writePsf)
-	VMDin.stdin.write(writePdb)
+	# run commands through pipe and saves to file
+	VMDin.stdin.write(sourceCNT)
+	VMDin.stdin.write(CNTtools)
+	VMDin.stdin.write(genNT)
+	VMDin.stdin.write(pbcNT)
 
 	# finished creating periodic nanotubes in VMD
 	VMDin.stdin.flush()
@@ -48,24 +26,24 @@ def tubeGenerator(filename):
 	if VMDin.returncode==0:
 		print "finished"
 
-#finds cell basis
-def cellBasis(filename):
-	basisFile = open(filename+'_basis.txt','r')
-	basisLines = basisFile.readlines()
-	basisFile.close()
+# find cell basis
+# def cellBasis(filename):
+# 	basisFile = open(filename+'_basis.txt','r')
+# 	basisLines = basisFile.readlines()
+# 	basisFile.close()
 
-	xVec = eval(basisLines[0].strip("{\n"))
-	yVec = eval(basisLines[1].strip("\n"))
-	zVec = eval(basisLines[2].strip("\n"))
+# 	xVec = eval(basisLines[0].strip("{\n"))
+# 	yVec = eval(basisLines[1].strip("\n"))
+# 	zVec = eval(basisLines[2].strip("\n"))
 	
-	return xVec, yVec, zVec
+# 	return xVec, yVec, zVec
 
 def simulationWriter(filename, output = None, temp = None, basis = None):
 	if temp is None:
 		temp = 300
 	if output is None:
 		output = 'sim_short_fixed'
-	if basis = None:
+	if basis is None:
 		basis = []
 
 	#Read in lines of simulation file
