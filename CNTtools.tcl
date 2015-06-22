@@ -15,6 +15,17 @@ proc genNT {molnm l n m} {
 
 }
 
+proc fixNT {molnm} {
+
+  mol new [file normalize ${fname}.psf] type psf autobonds off waitfor all
+  mol addfile [file normalize ${fname}.pdb] type pdb autobonds off waitfor all
+
+  set fix [atomselect top "index < 2"]
+  $fix set beta 0
+  $fix writepsf $molnm.psf
+  $fix writepdb $molnm.pdb
+}
+
 proc pbcNT {molnm fileOut ntype} {
   ## Credit to Tom Vollman(?) from Northwestern University
   # Read in cnt that does not have periodic bonds.
