@@ -9,6 +9,7 @@ def tubeGen(inFile, outFile, l, n, m):
 	VMDin=subprocess.Popen(['vmd','-dispdev', 'none'], stdin=subprocess.PIPE)
 
 	# runs CNTtools.tcl script to generate nanotube and generate PBCs
+	sourceCNT = 'source CNTtools.tcl\n'
 	CNTtools = 'package require CNTtools 1.0\n'
 	genNT = 'genNT '+inFile+' '+str(l)+' '+str(n)+' '+str(m)+'\n'
 	pbcNT = 'pbcNT '+inFile+' '+outFile+' default\n'

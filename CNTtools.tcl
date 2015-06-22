@@ -68,19 +68,19 @@ proc pbcNT {molnm fileOut ntype} {
   set dihedrals 1
   ::inorganicBuilder::buildAnglesDihedrals $fname0 $fname $dihedrals
 
-  # Reload molecule for some reason, perhaps to set beta?
-  # If so, that could probably have been done earlier, so I don't currently see the point.
-  mol delete $molid
-  mol new [file normalize ${fname}.psf] type psf autobonds off waitfor all
-  mol addfile [file normalize ${fname}.pdb] type pdb autobonds off waitfor all
-  set wrappedMol [molinfo top]
-  set sys [atomselect top all]
-  $sys set beta 0
-  $sys writepsf $molnm.psf
-  $sys writepdb $molnm.pdb
+  # # Reload molecule for some reason, perhaps to set beta?
+  # # If so, that could probably have been done earlier, so I don't currently see the point.
+  # mol delete $molid
+  # mol new [file normalize ${fname}.psf] type psf autobonds off waitfor all
+  # mol addfile [file normalize ${fname}.pdb] type pdb autobonds off waitfor all
+  # set wrappedMol [molinfo top]
+  # set sys [atomselect top all]
+  # $sys set beta 0
+  # $sys writepsf $molnm.psf
+  # $sys writepdb $molnm.pdb
 
-  # Not sure why the below is here. Maybe I use it in the calling space.
-  ::inorganicBuilder::setVMDPeriodicBox $mybox
-  return $fname
+  # # Not sure why the below is here. Maybe I use it in the calling space.
+  # ::inorganicBuilder::setVMDPeriodicBox $mybox
+  # return $fname
 
 }
