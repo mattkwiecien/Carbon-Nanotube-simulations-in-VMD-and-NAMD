@@ -75,8 +75,15 @@ def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "sim_fixed")
 		outFile.close()
 		paramFile = basePath+"templates/par_all27_prot_lipid.prm"
 		os.system("cp "+paramFile+" "+simPath)
+		return simPath+output+".conf"
 
-# def simSaver
+def runSim(simPath):
+	Namd2in=subprocess.Popen(["namd2",simPath], stdin=subprocess.PIPE)
+	Namd2in.stdin.flush()
+	Namd2in.stdin.close
+	Namd2in.communicate()
+	if Namd2in.returncode==0:
+		print "\nSimulation finished.\n"
 
 # find cell basis
 def getCNTBasis(CNT):
@@ -94,8 +101,8 @@ def getCNTBasis(CNT):
 	
 	return xVec, yVec, zVec
 
-def main(inFile,outFile,l,n,m):
-	tPath, pPath = tubeGen(inFile,outFile,l,n,m)
-	simWrite(pPath,400,25000)
-
+def main(inFile,pbcFile,l,n,m):
+	initPath, pbcPath = tubeGen(inFile,pbcFile,l,n,m)
+	simPath = simWrite(pbcFile,pbcPath,400,20000,"main_test")
+	runSim(simPath)
 
