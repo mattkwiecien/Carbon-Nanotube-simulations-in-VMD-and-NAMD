@@ -10,7 +10,7 @@ proc genNT {molnm path l n m} {
   set mymol [atomselect top all]
 
   # saves nanotube in new directory
-  set molpath ${path}/${molnm}
+  set molpath ${path}${molnm}
   $mymol writepsf $molpath.psf
   $mymol writepdb $molpath.pdb
 
@@ -18,11 +18,14 @@ proc genNT {molnm path l n m} {
 
 proc fixNT {molnm} {
 
-  mol new [file normalize ${fname}.psf] type psf autobonds off waitfor all
-  mol addfile [file normalize ${fname}.pdb] type pdb autobonds off waitfor all
+  mol new [file normalize ${molnm}.psf] type psf autobonds off waitfor all
+  mol addfile [file normalize ${molnm}.pdb] type pdb autobonds off waitfor all
+
+  set all0 [atomselect top all]
+  $all0 set beta 0
 
   set fix [atomselect top "index < 2"]
-  $fix set beta 0
+  $fix set beta 1
   
   set all [atomselect top all]
   $all writepsf $molnm.psf
