@@ -4,14 +4,17 @@ package require nanotube
 package require pbctools
 package require psfgen
 
-proc genNT {molnm l n m} {
+proc genNT {molnm path l n m} {
   # Create a nantube of length l with nxm structure
   nanotube -l $l -n $n -m $m
   set mymol [atomselect top all]
 
-  # Saves nanotube with specified name
-  $mymol writepsf $molnm.psf
-  $mymol writepdb $molnm.pdb
+  # creates directory to new nanotube file
+  mkdir $path
+  # saves nanotube in new directory
+  set molpath ${path}/${molnm}
+  $mymol writepsf $molpath.psf
+  $mymol writepdb $molpath.pdb
 
 }
 
@@ -22,8 +25,11 @@ proc fixNT {molnm} {
 
   set fix [atomselect top "index < 2"]
   $fix set beta 0
-  $fix writepsf $molnm.psf
-  $fix writepdb $molnm.pdb
+  
+  set all [atomselect top all]
+  $all writepsf $molnm.psf
+  $all writepdb $molnm.pdb
+
 }
 
 proc pbcNT {molnm fileOut ntype} {
@@ -78,17 +84,6 @@ proc pbcNT {molnm fileOut ntype} {
   # Build the angular bonds into output file fname.
   set dihedrals 1
   ::inorganicBuilder::buildAnglesDihedrals $fname0 $fname $dihedrals
-
-  # # Reload molecule for some reason, perhaps to set beta?
-  # # If so, that could probably have been done earlier, so I don't currently see the point.
-  # mol delete $molid
-  # mol new [file normalize ${fname}.psf] type psf autobonds off waitfor all
-  # mol addfile [file normalize ${fname}.pdb] type pdb autobonds off waitfor all
-  # set wrappedMol [molinfo top]
-  # set sys [atomselect top all]
-  # $sys set beta 0
-  # $sys writepsf $molnm.psf
-  # $sys writepdb $molnm.pdb
 
   # # Not sure why the below is here. Maybe I use it in the calling space.
   # ::inorganicBuilder::setVMDPeriodicBox $mybox
