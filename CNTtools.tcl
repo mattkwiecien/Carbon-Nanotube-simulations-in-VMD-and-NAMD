@@ -9,8 +9,6 @@ proc genNT {molnm path l n m} {
   nanotube -l $l -n $n -m $m
   set mymol [atomselect top all]
 
-  # creates directory to new nanotube file
-  mkdir $path
   # saves nanotube in new directory
   set molpath ${path}/${molnm}
   $mymol writepsf $molpath.psf

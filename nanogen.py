@@ -2,8 +2,10 @@ import numpy as np
 from scipy import *
 import subprocess
 import time
+import os
 
-global fpath = "/Users/nanotubes/Simulations/"
+global basePath
+basePath = "/Users/nanotubes/Simulations/"
 
 # VMD generation of nanotube and periodic boundary conditions
 def tubeGen(inFile, outFile, l, n, m):
@@ -11,7 +13,10 @@ def tubeGen(inFile, outFile, l, n, m):
 	is the name of the initial nanotube of length l with dimensions n x m.  outFile is 
 	the name of the same nanotube but now with periodic boundary conditions applied to it. """
 	
-	tubePath = fpath+str(l)+"_"+str(n)+"x"+str(m)
+	tubePath = basePath+"cnt"+str(l)+"_"+str(n)+"x"+str(m)+"/"
+	pbcPath = tubePath+"PBC/"
+	os.system("mkdir "+tubePath)
+	os.system("mkdir "+pbcPath)
 
 	# Opening a pipe to VMD in the shell
 	VMDin=subprocess.Popen(["vmd","-dispdev", "none"], stdin=subprocess.PIPE)
@@ -19,8 +24,9 @@ def tubeGen(inFile, outFile, l, n, m):
 	# runs CNTtools.tcl script to generate nanotube and generate PBCs
 	sourceCNT = "source CNTtools.tcl\n"
 	CNTtools = "package require CNTtools 1.0\n"
+
 	genNT = "genNT "+inFile+" "+tubePath+" "+str(l)+" "+str(n)+" "+str(m)+"\n"
-	pbcNT = "pbcNT "+inFile+" "+outFile+" default\n"
+	pbcNT = "pbcNT "+tubePath+inFile+" "+pbcPath+outFile+" default\n"
 
 	# run commands through pipe and saves to file
 	VMDin.stdin.write(sourceCNT)
@@ -76,6 +82,6 @@ def getCNTBasis(CNT):
 	return xVec, yVec, zVec
 
 def main(inFile,outFile,l,n,m):
-	#tubeGen(inFile,outFile,l,n,m)
+	tubeGen(inFile,outFile,l,n,m)
 
 
