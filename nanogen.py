@@ -15,7 +15,8 @@ def tubeGen(inFile, pbcFile, l, n, m):
 	
 	tubePath = basePath+"cnt"+str(l)+"_"+str(n)+"x"+str(m)+"/"
 	pbcPath = tubePath+"PBC/"
-	os.system("mkdir -p "+pbcPath)
+	if ~os.path.exists(pbcPath):
+		os.system("mkdir -p "+pbcPath)
 
 	# Opening a pipe to VMD in the shell
 	VMDin=subprocess.Popen(["vmd","-dispdev", "none"], stdin=subprocess.PIPE)
@@ -44,10 +45,14 @@ def tubeGen(inFile, pbcFile, l, n, m):
 
 
 def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "sim_fixed"):
-	""" simWrite generates a .conf file to use as input to namd2.   """
+	""" simWrite generates a .conf file to use as input to namd2. To organize simulations
+	with different parameters, simWrite will create a directory for the simulation using 
+	the following template: ~/Simulations/cntl_nxm/temp/length/sim.dcd, sim.conf.  """
 
 	simPath = CNTpath+str(temp)+"/"+str(length)+"/"
-	os.system("mkdir -p "+simPath)
+	if ~os.path.exists(simPath):
+		os.system("mkdir -p "+simPath)
+
 	# Grabs the CNT basis vectors
 	x,y,z = getCNTBasis(CNTpath+pbcFile)
 
@@ -78,12 +83,13 @@ def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "sim_fixed")
 		return simPath+output+".conf"
 
 def runSim(simPath):
+	""" given an input path to a simulation file, runSim will call namd2 to run the simulation """
 	Namd2in=subprocess.Popen(["namd2",simPath], stdin=subprocess.PIPE)
 	Namd2in.stdin.flush()
 	Namd2in.stdin.close
 	Namd2in.communicate()
 	if Namd2in.returncode==0:
-		print "\nSimulation finished.\n"
+		print "################################################################\nSimulation finished\nSimulation file saved into "+simPath.replace(".conf",".dcd")+".\n################################################################\n"
 
 # find cell basis
 def getCNTBasis(CNT):
@@ -103,6 +109,6 @@ def getCNTBasis(CNT):
 
 def main(inFile,pbcFile,l,n,m):
 	initPath, pbcPath = tubeGen(inFile,pbcFile,l,n,m)
-	simPath = simWrite(pbcFile,pbcPath,400,20000,"main_test")
+	simPath = simWrite(pbcFile,pbcPath,500,40000,"dirtest")
 	runSim(simPath)
 
