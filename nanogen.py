@@ -3,6 +3,7 @@ from scipy import *
 import subprocess
 import time
 import os
+import re
 
 global basePath
 basePath = "/Users/nanotubes/Simulations/"
@@ -94,16 +95,16 @@ def runSim(simPath):
 # find cell basis
 def getCNTBasis(CNT):
 	""" getCNTBasis finds the basis of a nanotube with filename outFile. """
-	# Opens the CNT prebond file and reads the lines
+	# Opens the CNT prebond file and reads the header of the file
 	basisFile = open(CNT+"-prebond.pdb","r")
-	basisLines = basisFile.readlines()
+	header = basisFile.next()
 	basisFile.close()
 
 	# Splits the first line of the CNT-prebond file, and finds the x,y,z basis vectors of the CNT 
-	basis = basisLines[0].split(" ")
-	xVec = eval(basis[2])
-	yVec = eval(basis[4])
-	zVec = eval(basis[6])
+	basis = re.split('\s+',header)
+	xVec = eval(basis[1])
+	yVec = eval(basis[2])
+	zVec = eval(basis[3])
 	
 	return xVec, yVec, zVec
 
