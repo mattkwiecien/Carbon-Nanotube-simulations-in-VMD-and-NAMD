@@ -9,12 +9,23 @@ global basePath
 basePath = "/Users/nanotubes/Simulations/"
 
 # VMD generation of nanotube and periodic boundary conditions
-def tubeGen(inFile, pbcFile, l, n, m):
+def tubeGen(inFile, pbcFile, N_0, n, m):
 	""" tubeGen creates a periodic nanotube with the following input parameters:  inFile 
-	is the name of the initial nanotube of length l with dimensions n x m.  pbcFile is 
+	is the name of the initial nanotube with number of rings N_0 and dimensions n x m.  pbcFile is 
 	the name of the same nanotube but now with periodic boundary conditions applied to it. """
-	
-	tubePath = basePath+"cnt"+str(l)+"_"+str(n)+"x"+str(m)+"/"
+	if N_0 % 2 == 1:
+		print "\nNumber of rings must be an even integer\n"
+
+	if n & m == 5:
+		s = 0.1429 #nm
+	elif n & m == 3:
+		s = 0.1447 #nm
+	else:
+		print "\nCannot currently create nanotubes with n=4 and m=4\n"
+
+	l = (N_0 - 1)*(s*np.sqrt(3))/2
+
+	tubePath = basePath+"cnt"+str(N_0)+"_"+str(n)+"x"+str(m)+"/"
 	pbcPath = tubePath+"PBC/"
 	if ~os.path.exists(pbcPath):
 		os.system("mkdir -p "+pbcPath)
@@ -108,8 +119,8 @@ def getCNTBasis(CNT):
 	
 	return xVec, yVec, zVec
 
-def main(inFile,pbcFile,l,n,m):
-	initPath, pbcPath = tubeGen(inFile,pbcFile,l,n,m)
-	simPath = simWrite(pbcFile,pbcPath,500,40000,"dirtest")
+def main(inFile,pbcFile,N_0,n,m):
+	initPath, pbcPath = tubeGen(inFile,pbcFile,N_0,n,m)
+	simPath = simWrite(pbcFile,pbcPath,500,20000,"ringtest")
 	runSim(simPath)
 
