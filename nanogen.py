@@ -13,17 +13,17 @@ def tubeGen(inFile, pbcFile, N_0, n, m):
 	""" tubeGen creates a periodic nanotube with the following input parameters:  inFile 
 	is the name of the initial nanotube with number of rings N_0 and dimensions n x m.  pbcFile is 
 	the name of the same nanotube but now with periodic boundary conditions applied to it. """
-	if N_0 % 2 == 1:
-		print "\nNumber of rings must be an even integer\n"
 
 	if n & m == 5:
 		s = 0.1429 #nm
+	# if n & m == 4:
+	# if n & m == 6:
 	elif n & m == 3:
 		s = 0.1447 #nm
 	else:
 		print "\nCannot currently create nanotubes with n=4 and m=4\n"
 
-	l = (N_0 - 1)*(s*np.sqrt(3))/2
+	l = (((2*N_0)-1)*(s*np.sqrt(3)))/2
 
 	tubePath = basePath+"cnt"+str(N_0)+"_"+str(n)+"x"+str(m)+"/"
 	pbcPath = tubePath+"PBC/"
