@@ -5,6 +5,7 @@ import time
 import os
 import re
 
+
 global basePath
 basePath = "/Users/nanotubes/Simulations/"
 
@@ -72,9 +73,9 @@ def solvate(inFile, N_0, S, n, m):
 	lenPsf = len(psfLines)
 	lenPdb = len(pdbLines)
 
-	oxygen = "ATOM     {:3d}  OH2 TIP3W8425       0.000   0.000   {:.3f}  1.00  0.00      WT1  O\n"
-	hydro1 = "ATOM     {:3d}  H1  TIP3W8425       0.000   0.766   {:.3f}  1.00  0.00      WT1  H\n"
-	hydro2 = "ATOM     {:3d}  H2  TIP3W8425       0.000  -0.766   {:.3f}  1.00  0.00      WT1  H\n"
+	oxygen = "ATOM    {:3d}  OH2 TIP3W8425       0.000   0.000   {:.3f}  1.00  0.00      WT1  O\n"
+	hydro1 = "ATOM    {:3d}  H1  TIP3W8425       0.000   0.766   {:.3f}  1.00  0.00      WT1  H\n"
+	hydro2 = "ATOM    {:3d}  H2  TIP3W8425       0.000  -0.766   {:.3f}  1.00  0.00      WT1  H\n"
 
 	if n & m == 3:
 		s = 1.447 
@@ -91,32 +92,37 @@ def solvate(inFile, N_0, S, n, m):
 	diameter = 2*s
 
 	if S==0:
-		nAtoms = lenPdb-1
+		nAtoms = lenPdb-2
+		newAtoms = nAtoms+(3*N_0)
+		print nAtoms, newAtoms
+		for i in range(0,lenPsf):
+			if "!NATOM" in psfLines[i]:
+				psfLines[i] = "     {:3d} !NATOM\n".format( newAtoms )
+			elif "!NBOND" in psfLines[i]:
+				psfLines[i] = "     {:3d} !NBOND: bonds\n".format( (nAtoms*(3/2)) + (2*N_0) )
+			elif "!NTHETA" in psfLines[i]:
+				psfLines[i] = "     {:3d} !NTHETA: angles\n".format( (nAtoms*3) + N_0 )
+
 
 		for i in range(0,3*N_0,3):
 			if i==0:
-				pdbLines[lenPdb-1] = oxygen.format(nAtoms, apothem)
-				pdbLines.append( hydro1.format(nAtoms+(i+1), apothem+.570) )
-				pdbLines.append( hydro2.format(nAtoms+(i+2), apothem+.570) )
+				pdbLines[lenPdb-1] = oxygen.format(nAtoms+1, apothem)
+				pdbLines.append( hydro1.format(nAtoms+(i+2), apothem+.570) )
+				pdbLines.append( hydro2.format(nAtoms+(i+3), apothem+.570) )
 			
 			else:
-				pdbLines.append( oxygen.format(nAtoms+i, apothem+(i*diameter)) )
-				pdbLines.append( hydro1.format(nAtoms+(i+1), apothem+0.570+(i*diameter)) )
-				pdbLines.append( hydro2.format(nAtoms+(i+2), apothem+0.570+(i*diameter)) )
+				pdbLines.append( oxygen.format(nAtoms+i+1, apothem+((i/3)*diameter)) )
+				pdbLines.append( hydro1.format(nAtoms+(i+2), apothem+0.570+((i/3)*diameter)) )
+				pdbLines.append( hydro2.format(nAtoms+(i+3), apothem+0.570+((i/3)*diameter)) )
 
 		pdbLines.append("END\n")
 		pdbOut = open(pPath+inFile+"_solv.pdb",'w')
 		pdbOut.writelines(pdbLines)
 		pdbOut.close()
 
-
-	# psfLines = psfFile.readlines()
-	# pdbLines = pdbFile.readlines()
-	# psfFile.close()
-	# pdbFile.close()
-	# nAtoms = len(psfLines) - 2
-
-		
+		psfOut = open(pPath+inFile+"_solv.psf",'w')
+		psfOut.writelines(psfLines)
+		psfOut.close()
 
 def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "sim_fixed"):
 	""" simWrite generates a .conf file to use as input to namd2. To organize simulations
@@ -138,14 +144,14 @@ def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "sim_fixed")
 	simLines[11] = "structure          "+CNTpath+pbcFile+".psf\n"
 	simLines[12] = "coordinates        "+CNTpath+pbcFile+".pdb\n"
 
-	simLines[14] = "set temperature    "+str(temp)+"\n"
-	simLines[34] = "cellBasisVector1    "+str(x)+"   0.   0.\n"
-	simLines[35] = "cellBasisVector2    0.   "+str(y)+"   0.\n"
-	simLines[36] = "cellBasisVector3    0.    0   "+str(z)+"\n"
+	simLines[14] = "set temperature    {:3d}\n".format(temp)
+	simLines[34] = "cellBasisVector1    {:.3f}   0.   0.\n".format(x)
+	simLines[35] = "cellBasisVector2    0.   {:.3f}   0.\n".format(y)
+	simLines[36] = "cellBasisVector3    0.    0.   {:.3f}\n".format(z)
 
 	simLines[15] = "set outputname     "+simPath+output+"\n"
 	simLines[74] = "fixedAtomsFile      "+CNTpath+pbcFile+".pdb\n"
-	simLines[99] = "run "+str(length)+" ;# 10ps\n"
+	simLines[99] = "run {:5d} ;# 10ps\n".format(length)
 
 	# Write contents out to original file
 	if os.path.exists(simPath):
