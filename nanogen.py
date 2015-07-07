@@ -14,16 +14,18 @@ def tubeGen(inFile, pbcFile, N_0, n, m):
 	is the name of the initial nanotube with number of rings N_0 and dimensions n x m.  pbcFile is 
 	the name of the same nanotube but now with periodic boundary conditions applied to it. """
 
-	if n & m == 5:
-		s = 0.1429 #nm
-	# if n & m == 4:
-	# if n & m == 6:
-	elif n & m == 3:
+	if n & m == 3:
 		s = 0.1447 #nm
+	elif n & m == 4:
+		s = 0.1432
+	elif n & m == 5:
+		s = 0.1429 #nm
+	elif n & m == 6:
+		s = 0.1422
 	else:
-		print "\nCannot currently create nanotubes with n=4 and m=4\n"
+		print "\nCannot currently create nanotubes with those dimensions.\n"
 
-	l = (((2*N_0)-1)*(s*np.sqrt(3)))/2
+	l = (N_0-1)*s*np.sqrt(3)
 
 	tubePath = basePath+"cnt"+str(N_0)+"_"+str(n)+"x"+str(m)+"/"
 	pbcPath = tubePath+"PBC/"
@@ -55,6 +57,66 @@ def tubeGen(inFile, pbcFile, N_0, n, m):
 	if VMDin.returncode==0:
 		return tubePath, pbcPath
 
+
+def solvate(inFile, N_0, S, n, m):
+
+	tPath, pPath = tubeGen(inFile,inFile,N_0,n,m)
+
+	psfFile = open(pPath+inFile+".psf",'rwa')
+	pdbFile = open(pPath+inFile+".pdb",'rwa')
+	psfLines = psfFile.readlines()
+	pdbLines = pdbFile.readlines()
+	psfFile.close()
+	pdbFile.close()
+
+	lenPsf = len(psfLines)
+	lenPdb = len(pdbLines)
+
+	oxygen = "ATOM     {:3d}  OH2 TIP3W8425       0.000   0.000   {:.3f}  1.00  0.00      WT1  O\n"
+	hydro1 = "ATOM     {:3d}  H1  TIP3W8425       0.000   0.766   {:.3f}  1.00  0.00      WT1  H\n"
+	hydro2 = "ATOM     {:3d}  H2  TIP3W8425       0.000  -0.766   {:.3f}  1.00  0.00      WT1  H\n"
+
+	if n & m == 3:
+		s = 1.447 
+	elif n & m == 4:
+		s = 1.432
+	elif n & m == 5:
+		s = 1.429 
+	elif n & m == 6:
+		s = 1.422
+	else:
+		print "\nCannot currently create nanotubes with those dimensions.\n"
+
+	apothem = s*np.sqrt(3)/2
+	diameter = 2*s
+
+	if S==0:
+		nAtoms = lenPdb-1
+
+		for i in range(0,3*N_0,3):
+			if i==0:
+				pdbLines[lenPdb-1] = oxygen.format(nAtoms, apothem)
+				pdbLines.append( hydro1.format(nAtoms+(i+1), apothem+.570) )
+				pdbLines.append( hydro2.format(nAtoms+(i+2), apothem+.570) )
+			
+			else:
+				pdbLines.append( oxygen.format(nAtoms+i, apothem+(i*diameter)) )
+				pdbLines.append( hydro1.format(nAtoms+(i+1), apothem+0.570+(i*diameter)) )
+				pdbLines.append( hydro2.format(nAtoms+(i+2), apothem+0.570+(i*diameter)) )
+
+		pdbLines.append("END\n")
+		pdbOut = open(pPath+inFile+"_solv.pdb",'w')
+		pdbOut.writelines(pdbLines)
+		pdbOut.close()
+
+
+	# psfLines = psfFile.readlines()
+	# pdbLines = pdbFile.readlines()
+	# psfFile.close()
+	# pdbFile.close()
+	# nAtoms = len(psfLines) - 2
+
+		
 
 def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "sim_fixed"):
 	""" simWrite generates a .conf file to use as input to namd2. To organize simulations
