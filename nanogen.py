@@ -97,6 +97,8 @@ def solvate(inFile, N_0, S, n, m):
 
 		nAtoms = lenPdb-2
 		newAtoms = nAtoms+(3*N_0)
+		newBonds = int(nAtoms*(3./2)) + 2*N_0
+		newAngles = nAtoms*3 + N_0
 
 		atoms = []
 		bonds = []
@@ -109,10 +111,10 @@ def solvate(inFile, N_0, S, n, m):
 				psfLines[i] = "     {:3d} !NATOM\n".format( newAtoms )
 				atomIndex = i
 			elif "!NBOND" in psfLines[i]:
-				psfLines[i] = "     {:3d} !NBOND: bonds\n".format( (int(nAtoms*(3./2))) + (2*N_0) )
+				psfLines[i] = "     {:3d} !NBOND: bonds\n".format( newBonds )
 				bondIndex = i
 			elif "!NTHETA" in psfLines[i]:
-				psfLines[i] = "     {:3d} !NTHETA: angles\n".format( (nAtoms*3) + N_0 )
+				psfLines[i] = "     {:3d} !NTHETA: angles\n".format( newAngles )
 				angleIndex = i
 
 		for i in range(0,atomIndex):
@@ -134,8 +136,6 @@ def solvate(inFile, N_0, S, n, m):
 		for i in range(angleIndex+count,lenPsf):
 			postAngles.append(psfLines[i])
 
-
-
 		intBonds = []
 		intAngles = []
 
@@ -146,6 +146,24 @@ def solvate(inFile, N_0, S, n, m):
 
 		intBonds = list(chain.from_iterable(intBonds))
 		intAngles = list(chain.from_iterable(intAngles))	
+
+		for i in range(1, (3*N_0)+1, 3):
+			intAngles.append(str(nAtoms+i+1))
+			intAngles.append(str(nAtoms+i))
+			intAngles.append(str(nAtoms+i+2))
+
+			intBonds.append(str(nAtoms+i))
+			intBonds.append(str(nAtoms+i+1))
+			intBonds.append(str(nAtoms+i))
+			intBonds.append(str(nAtoms+i+2))
+
+		for i in range(nAtoms+1, 3*N_0 + nAtoms+1, 3):
+			atoms.append(opsf.format(i))
+			atoms.append(h1psf.format(i+1))
+			atoms.append(h2psf.format(i+2))
+
+		sBondFormat = "{0: >7}{1: >7}{2: >7}{3: >7}{4: >7}{5: >7}{6: >7}{7: >7}"
+		sAngleFormat = "{0: >7}{1: >7}{2: >7}{3: >7}{4: >7}{5: >7}{6: >7}{7: >7}{8: >7}"
 
 		for i in range(0,3*N_0,3):
 			if i==0:
