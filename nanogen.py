@@ -4,6 +4,7 @@ import subprocess
 import time
 import os
 import re
+import itertools
 
 
 global basePath
@@ -60,22 +61,23 @@ def tubeGen(inFile, pbcFile, N_0, n, m):
 
 
 def solvate(inFile, N_0, S, n, m):
-
 	tPath, pPath = tubeGen(inFile,inFile,N_0,n,m)
 
-	psfFile = open(pPath+inFile+".psf",'rwa')
-	pdbFile = open(pPath+inFile+".pdb",'rwa')
-	psfLines = psfFile.readlines()
-	pdbLines = pdbFile.readlines()
-	psfFile.close()
-	pdbFile.close()
-
+	with open(pPath+inFile+".psf") as psfFile:
+		psfLines = psfFile.readlines()
+	with open(pPath+inFile+".pdb") as pdbFile:
+		pdbLines = pdbFile.readlines()
 	lenPsf = len(psfLines)
 	lenPdb = len(pdbLines)
 
 	oxygen = "ATOM    {:3d}  OH2 TIP3W8425       0.000   0.000   {:.3f}  1.00  0.00      WT1  O\n"
 	hydro1 = "ATOM    {:3d}  H1  TIP3W8425       0.000   0.766   {:.3f}  1.00  0.00      WT1  H\n"
 	hydro2 = "ATOM    {:3d}  H2  TIP3W8425       0.000  -0.766   {:.3f}  1.00  0.00      WT1  H\n"
+
+	opsf = "     {:3d} WT1  8425 TIP3 OH2  OT    -0.834000       15.9994           0\n"
+	h1psf = "     {:3d} WT1  8425 TIP3 H1   HT     0.417000        1.0080           0\n"
+	h2psf = "     {:3d} WT1  8425 TIP3 H2   HT     0.417000        1.0080           0\n"
+
 
 	if n & m == 3:
 		s = 1.447 
@@ -92,17 +94,57 @@ def solvate(inFile, N_0, S, n, m):
 	diameter = 2*s
 
 	if S==0:
+
 		nAtoms = lenPdb-2
 		newAtoms = nAtoms+(3*N_0)
-		print nAtoms, newAtoms
+
+		atoms = []
+		bonds = []
+		angles = []
+		preAtoms = []
+		postAngles = []
+
 		for i in range(0,lenPsf):
 			if "!NATOM" in psfLines[i]:
 				psfLines[i] = "     {:3d} !NATOM\n".format( newAtoms )
+				atomIndex = i
 			elif "!NBOND" in psfLines[i]:
 				psfLines[i] = "     {:3d} !NBOND: bonds\n".format( (nAtoms*(3/2)) + (2*N_0) )
+				bondIndex = i
 			elif "!NTHETA" in psfLines[i]:
 				psfLines[i] = "     {:3d} !NTHETA: angles\n".format( (nAtoms*3) + N_0 )
+				angleIndex = i
 
+		for i in range(0,atomIndex):
+			preAtoms.append(psfLines[i])
+
+		count = 1
+		while psfLines[atomIndex+count].strip():
+			atoms.append( psfLines[atomIndex+count] )
+			count+=1
+		count = 1
+		while psfLines[bondIndex+count].strip():
+			bonds.append( psfLines[bondIndex+count] )
+			count+=1
+		count = 1
+		while psfLines[angleIndex+count].strip():
+			angles.append( psfLines[angleIndex+count] )
+			count+=1
+
+		for i in range(angleIndex+count,lenPsf):
+			postAngles.append(psfLines[i])
+
+
+		intBonds = []
+		intAngles = []
+
+		for bond in bonds:
+			intBonds.append( bond.strip("\n").split() )
+		for angle in angles:
+			intAngles.append( angle.strip("\n").split() )
+
+		intBonds = list(chain.from_iterable(intBonds))
+		intAngles = list(chain.from_iterable(intAngles))	
 
 		for i in range(0,3*N_0,3):
 			if i==0:
@@ -124,6 +166,10 @@ def solvate(inFile, N_0, S, n, m):
 		psfOut.writelines(psfLines)
 		psfOut.close()
 
+
+
+
+
 def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "sim_fixed"):
 	""" simWrite generates a .conf file to use as input to namd2. To organize simulations
 	with different parameters, simWrite will create a directory for the simulation using 
@@ -137,9 +183,8 @@ def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "sim_fixed")
 	x,y,z = getCNTBasis(CNTpath+pbcFile)
 
 	# Read in lines of simulation file
-	inFile = open(basePath+"templates/sim_template.conf","r")
-	simLines = inFile.readlines()
-	inFile.close()
+	with open(basePath+"templates/sim_template.conf") as inFile:
+		simLines = inFile.readlines()
 
 	simLines[11] = "structure          "+CNTpath+pbcFile+".psf\n"
 	simLines[12] = "coordinates        "+CNTpath+pbcFile+".pdb\n"
@@ -175,9 +220,9 @@ def runSim(simPath):
 def getCNTBasis(CNT):
 	""" getCNTBasis finds the basis of a nanotube with filename outFile. """
 	# Opens the CNT prebond file and reads the header of the file
-	basisFile = open(CNT+"-prebond.pdb","r")
-	header = basisFile.next()
-	basisFile.close()
+	with open(CNT+"-prebond.pdb") as basisFile
+		header = basisFile.next()
+
 
 	# Splits the first line of the CNT-prebond file, and finds the x,y,z basis vectors of the CNT 
 	basis = re.split('\s+',header)
