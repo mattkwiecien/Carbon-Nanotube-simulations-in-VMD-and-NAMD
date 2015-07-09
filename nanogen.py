@@ -4,7 +4,7 @@ import subprocess
 import time
 import os
 import re
-import itertools
+from itertools import chain
 
 
 global basePath
@@ -109,7 +109,7 @@ def solvate(inFile, N_0, S, n, m):
 				psfLines[i] = "     {:3d} !NATOM\n".format( newAtoms )
 				atomIndex = i
 			elif "!NBOND" in psfLines[i]:
-				psfLines[i] = "     {:3d} !NBOND: bonds\n".format( (nAtoms*(3/2)) + (2*N_0) )
+				psfLines[i] = "     {:3d} !NBOND: bonds\n".format( (int(nAtoms*(3./2))) + (2*N_0) )
 				bondIndex = i
 			elif "!NTHETA" in psfLines[i]:
 				psfLines[i] = "     {:3d} !NTHETA: angles\n".format( (nAtoms*3) + N_0 )
@@ -135,6 +135,7 @@ def solvate(inFile, N_0, S, n, m):
 			postAngles.append(psfLines[i])
 
 
+
 		intBonds = []
 		intAngles = []
 
@@ -158,12 +159,20 @@ def solvate(inFile, N_0, S, n, m):
 				pdbLines.append( hydro2.format(nAtoms+(i+3), apothem+0.570+((i/3)*diameter)) )
 
 		pdbLines.append("END\n")
-		pdbOut = open(pPath+inFile+"_solv.pdb",'w')
+		pdbOut = open(pPath+inFile+"-solv.pdb",'w')
 		pdbOut.writelines(pdbLines)
 		pdbOut.close()
 
-		psfOut = open(pPath+inFile+"_solv.psf",'w')
-		psfOut.writelines(psfLines)
+		psfOut = open(pPath+inFile+"-solv.psf",'w')
+		psfOut.writelines(preAtoms)
+		psfOut.writelines(psfLines[atomIndex])
+		psfOut.writelines(atoms)
+		psfOut.writelines("\n"+psfLines[bondIndex])
+		psfOut.writelines(bonds)
+		psfOut.writelines("\n"+psfLines[angleIndex])
+		psfOut.writelines(angles)
+		psfOut.writelines(postAngles)
+
 		psfOut.close()
 
 
@@ -220,7 +229,7 @@ def runSim(simPath):
 def getCNTBasis(CNT):
 	""" getCNTBasis finds the basis of a nanotube with filename outFile. """
 	# Opens the CNT prebond file and reads the header of the file
-	with open(CNT+"-prebond.pdb") as basisFile
+	with open(CNT+"-prebond.pdb") as basisFile:
 		header = basisFile.next()
 
 
