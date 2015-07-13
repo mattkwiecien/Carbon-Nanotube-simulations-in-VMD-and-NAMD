@@ -165,6 +165,32 @@ def solvate(inFile, N_0, S, n, m):
 		sBondFormat = "{0: >7}{1: >7}{2: >7}{3: >7}{4: >7}{5: >7}{6: >7}{7: >7}"
 		sAngleFormat = "{0: >7}{1: >7}{2: >7}{3: >7}{4: >7}{5: >7}{6: >7}{7: >7}{8: >7}"
 
+		bondsFinal = []
+		for i in range(0,len(intBonds),8):
+			try:
+				bondsFinal.append( sBondFormat.format(intBonds[i],intBonds[i+1],intBonds[i+2],intBonds[i+3],
+					intBonds[i+4], intBonds[i+5], intBonds[i+6], intBonds[i+7]) )
+		
+			except:
+				diff = len(intBonds) - i
+				tempStr = ""
+				for j in range(i,i+diff):
+					tempStr = tempStr + "{:>7}".format(intBonds[j])
+				bondsFinal.append( tempStr )
+
+		anglesFinal = []
+		for i in range(0,len(intAngles),9):
+			try:
+				anglesFinal.append( sAngleFormat.format(intAngles[i],intAngles[i+1],intAngles[i+2],intAngles[i+3],
+					intAngles[i+4], intAngles[i+5], intAngles[i+6], intAngles[i+7], intAngles[i+8]) )
+		
+			except:
+				diff = len(intAngles) - i
+				tempStr = ""
+				for j in range(i,i+diff):
+					tempStr = tempStr + "{:>7}".format(intAngles[j])
+				anglesFinal.append( tempStr )
+
 		for i in range(0,3*N_0,3):
 			if i==0:
 				pdbLines[lenPdb-1] = oxygen.format(nAtoms+1, apothem)
@@ -186,15 +212,12 @@ def solvate(inFile, N_0, S, n, m):
 		psfOut.writelines(psfLines[atomIndex])
 		psfOut.writelines(atoms)
 		psfOut.writelines("\n"+psfLines[bondIndex])
-		psfOut.writelines(bonds)
+		psfOut.writelines(bondsFinal)
 		psfOut.writelines("\n"+psfLines[angleIndex])
-		psfOut.writelines(angles)
+		psfOut.writelines(anglesFinal)
 		psfOut.writelines(postAngles)
 
 		psfOut.close()
-
-
-
 
 
 def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "sim_fixed"):
