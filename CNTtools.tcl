@@ -1,3 +1,4 @@
+### Written by Matthew Kwiecien Jul, 2015
 package provide CNTtools 1.0
 package require inorganicbuilder
 package require nanotube
@@ -34,7 +35,7 @@ proc fixNT {molnm} {
 }
 
 proc pbcNT {molnm fileOut ntype} {
-  ## Credit to Tom Vollman(?) from Northwestern University
+  ## Credit to Tom Sisan from Northwestern University
   # Read in cnt that does not have periodic bonds.
   mol new [file normalize ${molnm}.psf] type psf autobonds off waitfor all
   mol addfile [file normalize ${molnm}.pdb] type pdb autobonds off waitfor all

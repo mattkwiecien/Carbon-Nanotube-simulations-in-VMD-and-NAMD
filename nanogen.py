@@ -1,3 +1,4 @@
+### Written by Matthew Kwiecien Jul, 2015
 import numpy as np
 from scipy import *
 import subprocess
