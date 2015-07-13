@@ -16,6 +16,7 @@ def tubeGen(inFile, pbcFile, N_0, n, m):
 	is the name of the initial nanotube with number of rings N_0 and dimensions n x m.  pbcFile is 
 	the name of the same nanotube but now with periodic boundary conditions applied to it. """
 
+	#Bonds lengths of different armchair nanotubes in nanometers
 	if n & m == 3:
 		s = 0.1447 #nm
 	elif n & m == 4:
@@ -27,6 +28,7 @@ def tubeGen(inFile, pbcFile, N_0, n, m):
 	else:
 		print "\nCannot currently create nanotubes with those dimensions.\n"
 
+	#calculates the length of the nanotube based on bond lengths
 	l = (N_0-1)*s*np.sqrt(3)
 
 	tubePath = basePath+"cnt"+str(N_0)+"_"+str(n)+"x"+str(m)+"/"
@@ -61,24 +63,31 @@ def tubeGen(inFile, pbcFile, N_0, n, m):
 
 
 def solvate(inFile, N_0, S, n, m):
+	""" The solvate module will create an armchair swcnt with N_0 rings and add N_0+S water molecules inside
+	the nanotube, then write out new psf and pdb files for the nanotube. """
 	tPath, pPath = tubeGen(inFile,inFile,N_0,n,m)
 
+	#Opens input nanotube psf and pdb files, and reads all the lines of each file into lists
 	with open(pPath+inFile+".psf") as psfFile:
 		psfLines = psfFile.readlines()
 	with open(pPath+inFile+".pdb") as pdbFile:
 		pdbLines = pdbFile.readlines()
+
+	#Grabs the lengths of each of the lists
 	lenPsf = len(psfLines)
 	lenPdb = len(pdbLines)
 
+	#Pdb format for oxygen and hydrogen
 	oxygen = "ATOM    {:3d}  OH2 TIP3W8425       0.000   0.000   {:.3f}  1.00  0.00      WT1  O\n"
 	hydro1 = "ATOM    {:3d}  H1  TIP3W8425       0.000   0.766   {:.3f}  1.00  0.00      WT1  H\n"
 	hydro2 = "ATOM    {:3d}  H2  TIP3W8425       0.000  -0.766   {:.3f}  1.00  0.00      WT1  H\n"
 
+	#Psf format for oxygen and hydrogen
 	opsf = "     {:3d} WT1  8425 TIP3 OH2  OT    -0.834000       15.9994           0\n"
 	h1psf = "     {:3d} WT1  8425 TIP3 H1   HT     0.417000        1.0080           0\n"
 	h2psf = "     {:3d} WT1  8425 TIP3 H2   HT     0.417000        1.0080           0\n"
 
-
+	#Bonds lengths for different armchair nanotubes
 	if n & m == 3:
 		s = 1.447 
 	elif n & m == 4:
@@ -90,22 +99,31 @@ def solvate(inFile, N_0, S, n, m):
 	else:
 		print "\nCannot currently create nanotubes with those dimensions.\n"
 
+	#Calculates the apothem of each regular hexagon in the nanotube and then calculates the distance
+	##between the center of each ring in the tube
 	apothem = s*np.sqrt(3)/2
-	diameter = 2*s
+	l = (N_0-1)*s*np.sqrt(3)
+	dist = l/N_0
 
 	if S==0:
 
+		#Finds the original number of atoms in the Pdb file
 		nAtoms = lenPdb-2
+		#Calculates the new number of atoms after solvating
 		newAtoms = nAtoms+(3*N_0)
+		#Calculates the new number of bonds and angles after solvating
 		newBonds = int(nAtoms*(3./2)) + 2*N_0
 		newAngles = nAtoms*3 + N_0
 
+		#Initializing lists used below
 		atoms = []
 		bonds = []
 		angles = []
 		preAtoms = []
 		postAngles = []
 
+		#Iterates through all of the lines of the input Psf file, and records the index of the lines that contain
+		## the string !NATOM, !NBOND, and !NTHETA, as wella as changes the line to update the new number of each
 		for i in range(0,lenPsf):
 			if "!NATOM" in psfLines[i]:
 				psfLines[i] = "     {:3d} !NATOM\n".format( newAtoms )
@@ -117,36 +135,43 @@ def solvate(inFile, N_0, S, n, m):
 				psfLines[i] = "     {:3d} !NTHETA: angles\n".format( newAngles )
 				angleIndex = i
 
+		#Stores all of the original text lines that come before the atom section into a list
 		for i in range(0,atomIndex):
 			preAtoms.append(psfLines[i])
 
+		#Stores the atoms into a list
 		count = 1
 		while psfLines[atomIndex+count].strip():
 			atoms.append( psfLines[atomIndex+count] )
 			count+=1
+		#Stores the bonds into a list
 		count = 1
 		while psfLines[bondIndex+count].strip():
 			bonds.append( psfLines[bondIndex+count] )
 			count+=1
+		#Stores the angles into a list
 		count = 1
 		while psfLines[angleIndex+count].strip():
 			angles.append( psfLines[angleIndex+count] )
 			count+=1
-
+		#Stores all the text lines after the angles into a list
 		for i in range(angleIndex+count,lenPsf):
 			postAngles.append(psfLines[i])
 
 		intBonds = []
 		intAngles = []
 
+		#Takes the bonds and angles in the original file and splits each line into individual numbers
 		for bond in bonds:
 			intBonds.append( bond.strip("\n").split() )
 		for angle in angles:
 			intAngles.append( angle.strip("\n").split() )
 
+		#Compresses the list of lists into a single list of all of the angles and bonds in the original file
 		intBonds = list(chain.from_iterable(intBonds))
 		intAngles = list(chain.from_iterable(intAngles))	
 
+		#Adds the new bonds and angles to the list of original bonds and angles
 		for i in range(1, (3*N_0)+1, 3):
 			intAngles.append(str(nAtoms+i+1))
 			intAngles.append(str(nAtoms+i))
@@ -157,14 +182,17 @@ def solvate(inFile, N_0, S, n, m):
 			intBonds.append(str(nAtoms+i))
 			intBonds.append(str(nAtoms+i+2))
 
+		#Adds the new atoms to the original list of atoms
 		for i in range(nAtoms+1, 3*N_0 + nAtoms+1, 3):
 			atoms.append(opsf.format(i))
 			atoms.append(h1psf.format(i+1))
 			atoms.append(h2psf.format(i+2))
 
-		sBondFormat = "{0: >7}{1: >7}{2: >7}{3: >7}{4: >7}{5: >7}{6: >7}{7: >7}"
-		sAngleFormat = "{0: >7}{1: >7}{2: >7}{3: >7}{4: >7}{5: >7}{6: >7}{7: >7}{8: >7}"
+		#String format for the bonds and angles in the psf file
+		sBondFormat = " {0: >8}{1: >8}{2: >8}{3: >8}{4: >8}{5: >8}{6: >8}{7: >8}\n"
+		sAngleFormat = " {0: >8}{1: >8}{2: >8}{3: >8}{4: >8}{5: >8}{6: >8}{7: >8}{8: >8}\n"
 
+		#Formats the list of bonds into the psf format with 8 columns
 		bondsFinal = []
 		for i in range(0,len(intBonds),8):
 			try:
@@ -175,9 +203,10 @@ def solvate(inFile, N_0, S, n, m):
 				diff = len(intBonds) - i
 				tempStr = ""
 				for j in range(i,i+diff):
-					tempStr = tempStr + "{:>7}".format(intBonds[j])
-				bondsFinal.append( tempStr )
+					tempStr = tempStr + "{:>8}".format(intBonds[j])
+				bondsFinal.append( " "+tempStr+"\n" )
 
+		#Formates the list of angles into the psf format with 9 columns
 		anglesFinal = []
 		for i in range(0,len(intAngles),9):
 			try:
@@ -188,25 +217,28 @@ def solvate(inFile, N_0, S, n, m):
 				diff = len(intAngles) - i
 				tempStr = ""
 				for j in range(i,i+diff):
-					tempStr = tempStr + "{:>7}".format(intAngles[j])
-				anglesFinal.append( tempStr )
+					tempStr = tempStr + "{:>8}".format(intAngles[j])
+				anglesFinal.append( " "+tempStr+"\n" )
 
+		#Adds the new atoms to the pdb file
 		for i in range(0,3*N_0,3):
 			if i==0:
 				pdbLines[lenPdb-1] = oxygen.format(nAtoms+1, apothem)
-				pdbLines.append( hydro1.format(nAtoms+(i+2), apothem+.570) )
-				pdbLines.append( hydro2.format(nAtoms+(i+3), apothem+.570) )
+				pdbLines.append( hydro1.format(nAtoms+(i+2), apothem+0.570) )
+				pdbLines.append( hydro2.format(nAtoms+(i+3), apothem+0.570) )
 			
 			else:
-				pdbLines.append( oxygen.format(nAtoms+i+1, apothem+((i/3)*diameter)) )
-				pdbLines.append( hydro1.format(nAtoms+(i+2), apothem+0.570+((i/3)*diameter)) )
-				pdbLines.append( hydro2.format(nAtoms+(i+3), apothem+0.570+((i/3)*diameter)) )
+				pdbLines.append( oxygen.format(nAtoms+i+1, apothem+((i/3)*dist)) )
+				pdbLines.append( hydro1.format(nAtoms+(i+2), apothem+0.570+((i/3)*dist)) )
+				pdbLines.append( hydro2.format(nAtoms+(i+3), apothem+0.570+((i/3)*dist)) )
 
+		#Writes the new pdb lines to a new pdb file
 		pdbLines.append("END\n")
 		pdbOut = open(pPath+inFile+"-solv.pdb",'w')
 		pdbOut.writelines(pdbLines)
 		pdbOut.close()
 
+		#Writes the new psf lines to a new psf file
 		psfOut = open(pPath+inFile+"-solv.psf",'w')
 		psfOut.writelines(preAtoms)
 		psfOut.writelines(psfLines[atomIndex])
@@ -219,8 +251,10 @@ def solvate(inFile, N_0, S, n, m):
 
 		psfOut.close()
 
+		return pPath
 
-def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "sim_fixed"):
+
+def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "waterSim"):
 	""" simWrite generates a .conf file to use as input to namd2. To organize simulations
 	with different parameters, simWrite will create a directory for the simulation using 
 	the following template: ~/Simulations/cntl_nxm/temp/length/sim.dcd, sim.conf.  """
@@ -236,8 +270,8 @@ def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "sim_fixed")
 	with open(basePath+"templates/sim_template.conf") as inFile:
 		simLines = inFile.readlines()
 
-	simLines[11] = "structure          "+CNTpath+pbcFile+".psf\n"
-	simLines[12] = "coordinates        "+CNTpath+pbcFile+".pdb\n"
+	simLines[11] = "structure          "+CNTpath+pbcFile+"-solv.psf\n"
+	simLines[12] = "coordinates        "+CNTpath+pbcFile+"-solv.pdb\n"
 
 	simLines[14] = "set temperature    {:3d}\n".format(temp)
 	simLines[34] = "cellBasisVector1    {:.3f}   0.   0.\n".format(x)
@@ -245,7 +279,7 @@ def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "sim_fixed")
 	simLines[36] = "cellBasisVector3    0.    0.   {:.3f}\n".format(z)
 
 	simLines[15] = "set outputname     "+simPath+output+"\n"
-	simLines[74] = "fixedAtomsFile      "+CNTpath+pbcFile+".pdb\n"
+	simLines[74] = "fixedAtomsFile      "+CNTpath+pbcFile+"-solv.pdb\n"
 	simLines[99] = "run {:5d} ;# 10ps\n".format(length)
 
 	# Write contents out to original file
@@ -282,8 +316,8 @@ def getCNTBasis(CNT):
 	
 	return xVec, yVec, zVec
 
-def main(inFile,pbcFile,N_0,n,m):
-	initPath, pbcPath = tubeGen(inFile,pbcFile,N_0,n,m)
-	simPath = simWrite(pbcFile,pbcPath,500,20000,"ringtest")
-	runSim(simPath)
+def main(inFile,N_0,S,n,m):
+	pbcPath = solvate(inFile,N_0,S,n,m)
+	simPath = simWrite(inFile,pbcPath,300,30000,"waterSims")
+	#runSim(simPath)
 
