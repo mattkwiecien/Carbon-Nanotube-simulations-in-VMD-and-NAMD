@@ -79,9 +79,9 @@ def solvate(inFile, N_0, S, n, m):
 	lenPdb = len(pdbLines)
 
 	#Pdb format for oxygen and hydrogen
-	oxygen = "ATOM    {:3d}  OH2 TIP3W8425       0.000   0.000   {:.3f}  1.00  0.00      WT1  O\n"
-	hydro1 = "ATOM    {:3d}  H1  TIP3W8425       0.000   0.766   {:.3f}  1.00  0.00      WT1  H\n"
-	hydro2 = "ATOM    {:3d}  H2  TIP3W8425       0.000  -0.766   {:.3f}  1.00  0.00      WT1  H\n"
+	oxygen = "ATOM{0:>7}  OH2 TIP3            0.000   0.000{1:>8.3f}  1.00  0.00      WT1  O\n"
+	hydro1 = "ATOM{0:>7}  H1  TIP3            0.000   0.766{1:>8.3f}  1.00  0.00      WT1  H\n"
+	hydro2 = "ATOM{0:>7}  H2  TIP3            0.000  -0.766{1:>8.3f}  1.00  0.00      WT1  H\n"
 
 	#Psf format for oxygen and hydrogen
 	opsf = "     {:3d} WT1  8425 TIP3 OH2  OT    -0.834000       15.9994           0\n"
@@ -275,9 +275,9 @@ def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "waterSim"):
 	simLines[12] = "coordinates        "+CNTpath+pbcFile+"-solv.pdb\n"
 
 	simLines[14] = "set temperature    {:3d}\n".format(temp)
-	simLines[34] = "cellBasisVector1    {:.3f}   0.   0.\n".format(x)
-	simLines[35] = "cellBasisVector2    0.   {:.3f}   0.\n".format(y)
-	simLines[36] = "cellBasisVector3    0.    0.   {:.3f}\n".format(z)
+	simLines[34] = "cellBasisVector1    {0:<10.3f}{1:<10}{2:}\n".format(x,0.,0.)
+	simLines[35] = "cellBasisVector2    {0:<10}{1:<10.3f}{2:}\n".format(0.,y,0.)
+	simLines[36] = "cellBasisVector3    {0:<10}{1:<10}{2:.3f}\n".format(0.,0.,z)
 
 	simLines[15] = "set outputname     "+simPath+output+"\n"
 	simLines[74] = "fixedAtomsFile      "+CNTpath+pbcFile+"-solv.pdb\n"
@@ -319,6 +319,6 @@ def getCNTBasis(CNT):
 
 def main(inFile,N_0,S,n,m):
 	pbcPath = solvate(inFile,N_0,S,n,m)
-	simPath = simWrite(inFile,pbcPath,300,30000,"waterSims")
-	#runSim(simPath)
+	simPath = simWrite(inFile,pbcPath,300,30000,"waterSim")
+	runSim(simPath)
 
