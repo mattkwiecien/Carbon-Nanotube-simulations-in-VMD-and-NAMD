@@ -102,9 +102,10 @@ def solvate(inFile, N_0, S, n, m):
 
 	#Calculates the apothem of each regular hexagon in the nanotube and then calculates the distance
 	##between the center of each ring in the tube
-	apothem = s*np.sqrt(3)/2
+	#apothem = s*np.sqrt(3)/2
+	apothem = 0
 	l = (N_0-1)*s*np.sqrt(3)
-	dist = l/N_0
+	dist = l/(N_0-1)
 
 	if S==0:
 
