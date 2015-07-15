@@ -282,7 +282,7 @@ def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "waterSim"):
 
 	simLines[15] = "set outputname     "+simPath+output+"\n"
 	simLines[74] = "fixedAtomsFile      "+CNTpath+pbcFile+"-solv.pdb\n"
-	simLines[99] = "run {:5d} ;# 10ps\n".format(length)
+	simLines[99] = "run {:5d} ;# \n".format(length)
 
 	# Write contents out to original file
 	if os.path.exists(simPath):
@@ -318,8 +318,8 @@ def getCNTBasis(CNT):
 	
 	return xVec, yVec, zVec
 
-def main(inFile,N_0,S,n,m):
+def main(inFile,N_0,S,n,m,simLength,outFile):
 	pbcPath = solvate(inFile,N_0,S,n,m)
-	simPath = simWrite(inFile,pbcPath,300,30000,"waterSim")
+	simPath = simWrite(inFile,pbcPath,300,simLength,outFile)
 	runSim(simPath)
 
