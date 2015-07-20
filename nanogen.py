@@ -47,6 +47,7 @@ def tubeGen(inFile, pbcFile, N_0, n, m):
 	genNT = "genNT "+inFile+" "+tubePath+" "+str(l)+" "+str(n)+" "+str(m)+"\n"
 	pbcNT = "pbcNT "+tubePath+inFile+" "+pbcPath+pbcFile+" default\n"
 	fixNT = "fixNT "+pbcPath+pbcFile+"\n"
+	removeLangevinWater = "removeLangevinWater "+pbcPath+pbcFile+"\n"
 
 	# run commands through pipe and saves to file
 	VMDin.stdin.write(sourceCNT)
@@ -54,6 +55,7 @@ def tubeGen(inFile, pbcFile, N_0, n, m):
 	VMDin.stdin.write(genNT)
 	VMDin.stdin.write(pbcNT)
 	VMDin.stdin.write(fixNT)
+	VMDin.stdin.write(removeLangevinWater)
 
 	# finished creating periodic nanotubes in VMD
 	VMDin.stdin.flush()
@@ -281,8 +283,8 @@ def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "waterSim"):
 	simLines[36] = "cellBasisVector3    {0:<10}{1:<10}{2:.3f}\n".format(0.,0.,z)
 
 	simLines[15] = "set outputname     "+simPath+output+"\n"
-	simLines[74] = "fixedAtomsFile      "+CNTpath+pbcFile+"-solv.pdb\n"
-	simLines[99] = "run {:5d} ;# \n".format(length)
+	simLines[75] = "fixedAtomsFile      "+CNTpath+pbcFile+"-solv.pdb\n"
+	simLines[100] = "run {:5d} ;# \n".format(length)
 
 	# Write contents out to original file
 	if os.path.exists(simPath):

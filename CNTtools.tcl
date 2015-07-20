@@ -39,6 +39,23 @@ proc fixNT {molnm} {
 
 }
 
+proc removeLangevinWater {molnm} {
+  #removes langevin thermostat for water molecules
+  mol new [file normalize ${molnm}.psf] type psf autobonds off waitfor all
+  mol addfile [file normalize ${molnm}.pdb] type pdb autobonds off waitfor all
+
+  set all0 [atomselect top all]
+  $all0 set occupancy 0
+
+  set WTR [atomselect top "water"]
+  $WTR set occupancy 1
+
+  set all [atomselect top all]
+
+  $all writepsf $molnm.psf
+  $all writepdb $molnm.pdb
+}
+
 proc pbcNT {molnm fileOut ntype} {
   ## Credit to Tom Sisan from Northwestern University
   # Read in cnt that does not have periodic bonds.
