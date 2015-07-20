@@ -45,10 +45,7 @@ proc removeLangevinWater {molnm} {
   mol addfile [file normalize ${molnm}.pdb] type pdb autobonds off waitfor all
 
   set all0 [atomselect top all]
-  $all0 set occupancy 0
-
-  set WTR [atomselect top "water"]
-  $WTR set occupancy 1
+  $all0 set occupancy 5.00
 
   set all [atomselect top all]
 

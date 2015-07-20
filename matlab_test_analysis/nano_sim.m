@@ -1,6 +1,6 @@
 % loading moving atoms
 atomlist = 797;
-xyzlist = readdcd('velsSim.dcd',atomlist);
+xyzlist = readdcd('vSim3.veldcd',atomlist);
 
 %extracting x y z positions of atom1
 ax = xyzlist(:,1);
@@ -9,8 +9,8 @@ az = xyzlist(:,3);
 
 % Parameters 
 t = 10e-12;
-N = length(ax)
-dt = t/N
+N = length(ax);
+dt = t/N;
 
 v = zeros(3,N-1);
 
@@ -23,10 +23,10 @@ end
 m = 3e-26; %mass of water molecule in kg
 k = 1.38065e-23; %boltzmann J/K
 
-
-
-KE = (0.5*m).*( sqrt(v(1,:).^2 + v(2,:).^2 + v(3,:).^2 ) );%convert A/ns to m/s
-
+KE = (0.5*m) * ((sqrt(ax.^2 + ay.^2 + az.^2)).* 100); %1 A/ps = 100 m/s
 KEave = mean(KE);
+T = (2/3)*(1/k)* KEave
 
-T = (2/3)*(1/k)*( KEave )
+%KE = (0.5*m).*( sqrt(v(1,:).^2 + v(2,:).^2 + v(3,:).^2 ) );%convert A/ns to m/s
+%KEave = mean(KE);
+%T = (2/3)*(1/k)*( KEave )

@@ -81,14 +81,15 @@ def solvate(inFile, N_0, S, n, m):
 	lenPdb = len(pdbLines)
 
 	#Pdb format for oxygen and hydrogen
-	oxygen = "ATOM{0:>7}  OH2 TIP3            0.000   0.000{1:>8.3f}  1.00  0.00      WT1  O\n"
-	hydro1 = "ATOM{0:>7}  H1  TIP3            0.000   0.766{1:>8.3f}  1.00  0.00      WT1  H\n"
-	hydro2 = "ATOM{0:>7}  H2  TIP3            0.000  -0.766{1:>8.3f}  1.00  0.00      WT1  H\n"
+	dampingCoeff = 0.00
+	oxygen = "ATOM{0:>7}  OH2 TIP3            0.000   0.000{1:>8.3f} 90.00  0.00      TUB  O\n"
+	hydro1 = "ATOM{0:>7}  H1  TIP3            0.000   0.766{1:>8.3f} 90.00  0.00      TUB  H\n"
+	hydro2 = "ATOM{0:>7}  H2  TIP3            0.000  -0.766{1:>8.3f} 90.00  0.00      TUB  H\n"
 
 	#Psf format for oxygen and hydrogen
-	opsf = "     {:3d} WT1  8425 TIP3 OH2  OT    -0.834000       15.9994           0\n"
-	h1psf = "     {:3d} WT1  8425 TIP3 H1   HT     0.417000        1.0080           0\n"
-	h2psf = "     {:3d} WT1  8425 TIP3 H2   HT     0.417000        1.0080           0\n"
+	opsf = "     {:3d} TUB  {:3d}  TIP3 OH2  OT    -0.834000       15.9994           0\n"
+	h1psf = "     {:3d} TUB  {:3d}  TIP3 H1   HT     0.417000        1.0080           0\n"
+	h2psf = "     {:3d} TUB  {:3d}  TIP3 H2   HT     0.417000        1.0080           0\n"
 
 	#Bonds lengths for different armchair nanotubes
 	if n & m == 3:
@@ -188,9 +189,9 @@ def solvate(inFile, N_0, S, n, m):
 
 		#Adds the new atoms to the original list of atoms
 		for i in range(nAtoms+1, 3*N_0 + nAtoms+1, 3):
-			atoms.append(opsf.format(i))
-			atoms.append(h1psf.format(i+1))
-			atoms.append(h2psf.format(i+2))
+			atoms.append(opsf.format(i,i))
+			atoms.append(h1psf.format(i+1,i+1))
+			atoms.append(h2psf.format(i+2,i+2))
 
 		#String format for the bonds and angles in the psf file
 		sBondFormat = " {0: >8}{1: >8}{2: >8}{3: >8}{4: >8}{5: >8}{6: >8}{7: >8}\n"
@@ -283,8 +284,8 @@ def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "waterSim"):
 	simLines[36] = "cellBasisVector3    {0:<10}{1:<10}{2:.3f}\n".format(0.,0.,z)
 
 	simLines[15] = "set outputname     "+simPath+output+"\n"
-	simLines[75] = "fixedAtomsFile      "+CNTpath+pbcFile+"-solv.pdb\n"
-	simLines[100] = "run {:5d} ;# \n".format(length)
+	simLines[77] = "fixedAtomsFile      "+CNTpath+pbcFile+"-solv.pdb\n"
+	simLines[102] = "run {:5d} ;# \n".format(length)
 
 	# Write contents out to original file
 	if os.path.exists(simPath):
@@ -322,6 +323,6 @@ def getCNTBasis(CNT):
 
 def main(inFile,N_0,S,n,m,simLength,outFile):
 	pbcPath = solvate(inFile,N_0,S,n,m)
-	simPath = simWrite(inFile,pbcPath,300,simLength,outFile)
+	simPath = simWrite(inFile,pbcPath,30,simLength,outFile)
 	runSim(simPath)
 
