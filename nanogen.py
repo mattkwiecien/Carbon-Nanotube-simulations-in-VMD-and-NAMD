@@ -82,9 +82,9 @@ def solvate(inFile, N_0, S, n, m):
 
 	#Pdb format for oxygen and hydrogen
 	dampingCoeff = 0.00
-	oxygen = "ATOM{0:>7}  OH2 TIP3            0.000   0.000{1:>8.3f} 90.00  0.00      TUB  O\n"
-	hydro1 = "ATOM{0:>7}  H1  TIP3            0.000   0.766{1:>8.3f} 90.00  0.00      TUB  H\n"
-	hydro2 = "ATOM{0:>7}  H2  TIP3            0.000  -0.766{1:>8.3f} 90.00  0.00      TUB  H\n"
+	oxygen = "ATOM{0:>7}  OH2 TIP3            0.000   0.000{1:>8.3f}  0.00  0.00      TUB  O\n"
+	hydro1 = "ATOM{0:>7}  H1  TIP3            0.000   0.766{1:>8.3f}  0.00  0.00      TUB  H\n"
+	hydro2 = "ATOM{0:>7}  H2  TIP3            0.000  -0.766{1:>8.3f}  0.00  0.00      TUB  H\n"
 
 	#Psf format for oxygen and hydrogen
 	opsf = "     {:3d} TUB  {:3d}  TIP3 OH2  OT    -0.834000       15.9994           0\n"

@@ -48,7 +48,6 @@ proc removeLangevinWater {molnm} {
   $all0 set occupancy 5.00
 
   set all [atomselect top all]
-
   $all writepsf $molnm.psf
   $all writepdb $molnm.pdb
 }
