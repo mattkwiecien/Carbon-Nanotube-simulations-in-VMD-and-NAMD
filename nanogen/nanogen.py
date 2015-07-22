@@ -224,7 +224,11 @@ def solvate(inFile, N_0, S, n, m):
 
 			anglesFinal.append( " "+tempStr+"\n" )
 
-	# Adds the new atoms to the pdb file
+	if S>=0
+		sFactorAdjust = float(N_0) / (N_0 + (S+1))
+	else 
+		sFactorAdjust = 0
+		
 	for i in range(0,3*(N_0+S),3):
 		if i==0:
 			pdbLines[lenPdb-1] = oxygen.format(nAtoms+1, 0)
@@ -232,9 +236,9 @@ def solvate(inFile, N_0, S, n, m):
 			pdbLines.append( hydro2.format(nAtoms+(i+3), 0.570) )
 		
 		else:
-			pdbLines.append( oxygen.format(nAtoms+i+1, ((i/3)*dist)) )
-			pdbLines.append( hydro1.format(nAtoms+(i+2), 0.570+((i/3)*dist)) )
-			pdbLines.append( hydro2.format(nAtoms+(i+3), 0.570+((i/3)*dist)) )
+			pdbLines.append( oxygen.format(nAtoms+i+1, ((i/3)*dist*sFactorAdjust)) )
+			pdbLines.append( hydro1.format(nAtoms+(i+2), 0.570+((i/3)*dist*sFactorAdjust)) )
+			pdbLines.append( hydro2.format(nAtoms+(i+3), 0.570+((i/3)*dist*sFactorAdjust)) )
 
 	# Writes the new pdb lines to a new pdb file
 	pdbLines.append("END\n")
