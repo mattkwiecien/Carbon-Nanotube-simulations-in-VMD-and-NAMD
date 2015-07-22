@@ -110,6 +110,9 @@ def solvate(inFile, N_0, S, n, m):
 	l = (N_0-1)*s*np.sqrt(3)
 	dist = l/(N_0-1)
 
+	#############
+	### S = 0 ###
+	#############
 	if S==0:
 
 		#Finds the original number of atoms in the Pdb file
@@ -256,7 +259,12 @@ def solvate(inFile, N_0, S, n, m):
 
 		psfOut.close()
 
-		return pPath
+	#############
+	### S = 1 ###
+	#############
+		
+
+	return pPath
 
 
 def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "waterSim"):
