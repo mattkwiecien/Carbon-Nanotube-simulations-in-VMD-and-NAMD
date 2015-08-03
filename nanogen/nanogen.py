@@ -65,7 +65,7 @@ def tubeGen(inFile, pbcFile, N_0, n, m):
 		return tubePath, pbcPath
 
 
-def solvate(inFile, N_0, S, n, m):
+def solvate(inFile, N_0, S, n, m, force):
 	""" The solvate module will create an armchair swcnt with N_0 rings and add N_0+S water molecules inside
 	the nanotube, then write out new psf and pdb files for the nanotube. """
 	tPath, pPath = tubeGen(inFile,inFile,N_0,n,m)
@@ -224,10 +224,9 @@ def solvate(inFile, N_0, S, n, m):
 
 			anglesFinal.append( " "+tempStr+"\n" )
 
-	if S>=0:
-		sFactorAdjust = float(N_0) / (N_0 + (S+1))
-	else:
-		sFactorAdjust = 0
+
+	sFactorAdjust = float(N_0) / (N_0 + (S+1))
+
 
 	for i in range(0,3*(N_0+S),3):
 		if i==0:
@@ -258,6 +257,22 @@ def solvate(inFile, N_0, S, n, m):
 	psfOut.writelines(postAngles)
 	psfOut.close()
 
+	# Generates the file that indicates how strong the force is on each atom by modifying the occupancy column
+	strForce = str(force)
+	forceVal = "{:.4s}".format(strForce)
+	with open (pPath+inFile+"-solv.pdb") as f:
+		flines = f.readlines()
+
+	for i in range(1,len(flines)-1):
+		if i < lenPdb-1:
+			flines[i] = flines[i][0:56]+forceVal+flines[i][60::]
+		else:
+			flines[i] = flines[i][0:56]+forceVal+flines[i][60::]
+
+	outFile = open(pPath+inFile+"-force.pdb",'w')
+	outFile.writelines(flines)
+	outFile.close()
+
 	return pPath
 
 
@@ -277,17 +292,18 @@ def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "waterSim"):
 	with open(basePath+"templates/sim_template.conf") as inFile:
 		simLines = inFile.readlines()
 
-	simLines[11] = "structure          "+CNTpath+pbcFile+"-solv.psf\n"
-	simLines[12] = "coordinates        "+CNTpath+pbcFile+"-solv.pdb\n"
+	simLines[12] = "structure          "+CNTpath+pbcFile+"-solv.psf\n"
+	simLines[13] = "coordinates        "+CNTpath+pbcFile+"-solv.pdb\n"
 
-	simLines[14] = "set temperature    {:3d}\n".format(temp)
-	simLines[29] = "cellBasisVector1    {0:<10.3f}{1:<10}{2:}\n".format(x,0.,0.)
-	simLines[30] = "cellBasisVector2    {0:<10}{1:<10.3f}{2:}\n".format(0.,y,0.)
-	simLines[31] = "cellBasisVector3    {0:<10}{1:<10}{2:.3f}\n".format(0.,0.,z)
+	simLines[15] = "set temperature    {:3d}\n".format(temp)
+	simLines[30] = "cellBasisVector1    {0:<10.3f}{1:<10}{2:}\n".format(x,0.,0.)
+	simLines[31] = "cellBasisVector2    {0:<10}{1:<10.3f}{2:}\n".format(0.,y,0.)
+	simLines[32] = "cellBasisVector3    {0:<10}{1:<10}{2:.3f}\n".format(0.,0.,z)
 
-	simLines[15] = "set outputname     "+simPath+output+"\n"
-	simLines[69] = "fixedAtomsFile      "+CNTpath+pbcFile+"-solv.pdb\n"
-	simLines[86] = "run {:5d} \n".format(length)
+	simLines[16] = "set outputname     "+simPath+output+"\n"
+	simLines[71] = "fixedAtomsFile      "+CNTpath+pbcFile+"-solv.pdb\n"
+	simLines[87] = "consforcefile 	    "+CNTpath+pbcFile+"-force.pdb\n"
+	simLines[95] = "run {:5d} \n".format(length)
 
 	# Write contents out to original file
 	if os.path.exists(simPath):
@@ -298,17 +314,6 @@ def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "waterSim"):
 		os.system("cp "+paramFile+" "+simPath)
 		return simPath+output+".conf"
 
-def genForceFile(pPath,inFile):
-
-	with open (pPath+inFile+"-solv.pdb") as f:
-		flines = f.readlines()
-
-	for i in range(1,len(flines)-1):
-		flines[i] = flines[i][0:56]+"1.00"+flines[i][60::]
-
-	outFile = open(pPath+inFile+"-force.pdb",'w')
-	outFile.writelines(flines)
-	outFile.close()
 
 def runSim(simPath):
 	""" given an input path to a simulation file, runSim will call namd2 to run the simulation """
@@ -336,9 +341,8 @@ def getCNTBasis(CNT):
 	return xVec, yVec, zVec
 
 
-def main(FNAME,N_0,S,n,m,TEMP,LENGTH):
-	pbcPath = solvate(FNAME,N_0,S,n,m)
-	genForceFile(pbcPath,FNAME)
+def main(FNAME,N_0,S,n,m,TEMP,LENGTH,FORCESTRENGTH):
+	pbcPath = solvate(FNAME,N_0,S,n,m,FORCESTRENGTH)
 	simPath = simWrite(FNAME,pbcPath,TEMP,LENGTH,FNAME)
 	runSim(simPath)
 
