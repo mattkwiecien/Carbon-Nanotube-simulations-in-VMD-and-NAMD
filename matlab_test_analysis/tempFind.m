@@ -1,7 +1,7 @@
 % loading moving atoms
-fname = 'forceOff.veldcd';
-nAtoms = 377;
-length = 10;
+fname = 'LTN.veldcd';
+nAtoms = 567;
+length = 100;
 atomlist = 1:nAtoms;
 xyzlist = readdcd(fname,atomlist);
 
@@ -18,27 +18,31 @@ mC = 1.994e-26;
 mH = 1.674e-27;
 mO = 2.657e-26;
 
-mCarbon = mC.*ones(1,320);
-mOxygen = mO.*ones(1,19);
-mHydrogen = mH.*ones(1,19);
+nCarbon = 480;
+nWater = 29;
+nTot = nCarbon+(nWater*3);
+
+mCarbon = mC.*ones(1,nCarbon);
+mOxygen = mO.*ones(1,nWater);
+mHydrogen = mH.*ones(1,nWater);
 
 k = 1.38065e-23; %boltzmann J/K
 
-KEcarbon = zeros(320,length);
-KEoxy = zeros(19,length);
-KEhydro1 = zeros(19,length);
-KEhydro2 = zeros(19,length);
-vWater = zeros(19,length);
+KEcarbon = zeros(nCarbon,length);
+KEoxy = zeros(nWater,length);
+KEhydro1 = zeros(nWater,length);
+KEhydro2 = zeros(nWater,length);
+vWater = zeros(nWater,length);
 
 whos
 for i = 1:length
-   KEcarbon(:,i) = 0.5 .* ( mCarbon .* sqrt( vx(i,1:320).^2 + vy(i,1:320).^2 + vz(i,1:320).^2).^2 );
-   KEoxy(:,i) = 0.5.*( mOxygen .* sqrt(vx(i,321:3:377).^2 + vy(i,321:3:377).^2 + vz(i,321:3:377).^2).^2 );
+   KEcarbon(:,i) = 0.5 .* ( mCarbon .* sqrt( vx(i,1:nCarbon).^2 + vy(i,1:nCarbon).^2 + vz(i,1:nCarbon).^2).^2 );
+   KEoxy(:,i) = 0.5.*( mOxygen .* sqrt(vx(i,nCarbon+1:3:nTot).^2 + vy(i,nCarbon+1:3:nTot).^2 + vz(i,nCarbon+1:3:nTot).^2).^2 );
    
-   KEhydro1(:,i) = 0.5.*( mHydrogen .* sqrt(vx(i,322:3:377).^2 + vy(i,322:3:377).^2 + vz(i,322:3:377).^2).^2 );
-   KEhydro2(:,i) = 0.5.*( mHydrogen .* sqrt(vx(i,323:3:377).^2 + vy(i,323:3:377).^2 + vz(i,323:3:377).^2).^2 );
+   KEhydro1(:,i) = 0.5.*( mHydrogen .* sqrt(vx(i,nCarbon+2:3:nTot).^2 + vy(nCarbon+2:3:nTot).^2 + vz(nCarbon+2:3:nTot).^2).^2 );
+   KEhydro2(:,i) = 0.5.*( mHydrogen .* sqrt(vx(i,nCarbon+3:3:nTot).^2 + vy(i,nCarbon+3:3:nTot).^2 + vz(i,nCarbon+3:3:nTot).^2).^2 );
    
-   vWater(:,i) = sqrt( vx(i,321:3:377).^2 + vy(i,321:3:377).^2 + vz(i,321:3:377).^2 );
+   vWater(:,i) = sqrt( vx(i,nCarbon+1:3:nTot).^2 + vy(i,nCarbon+1:3:nTot).^2 + vz(i,nCarbon+1:3:nTot).^2 );
 end
 
 KEaveOxy = mean(KEoxy);
