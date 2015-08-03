@@ -224,11 +224,11 @@ def solvate(inFile, N_0, S, n, m):
 
 			anglesFinal.append( " "+tempStr+"\n" )
 
-	if S>=0
+	if S>=0:
 		sFactorAdjust = float(N_0) / (N_0 + (S+1))
-	else 
+	else:
 		sFactorAdjust = 0
-		
+
 	for i in range(0,3*(N_0+S),3):
 		if i==0:
 			pdbLines[lenPdb-1] = oxygen.format(nAtoms+1, 0)
@@ -298,6 +298,17 @@ def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "waterSim"):
 		os.system("cp "+paramFile+" "+simPath)
 		return simPath+output+".conf"
 
+def genForceFile(pPath,inFile):
+
+	with open (pPath+inFile+"-solv.pdb") as f:
+		flines = f.readlines()
+
+	for i in range(1,len(flines)-1):
+		flines[i] = flines[i][0:56]+"1.00"+flines[i][60::]
+
+	outFile = open(pPath+inFile+"-force.pdb",'w')
+	outFile.writelines(flines)
+	outFile.close()
 
 def runSim(simPath):
 	""" given an input path to a simulation file, runSim will call namd2 to run the simulation """
@@ -327,6 +338,7 @@ def getCNTBasis(CNT):
 
 def main(FNAME,N_0,S,n,m,TEMP,LENGTH):
 	pbcPath = solvate(FNAME,N_0,S,n,m)
+	genForceFile(pbcPath,FNAME)
 	simPath = simWrite(FNAME,pbcPath,TEMP,LENGTH,FNAME)
 	runSim(simPath)
 
