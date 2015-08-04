@@ -224,9 +224,7 @@ def solvate(inFile, N_0, S, n, m, force):
 
 			anglesFinal.append( " "+tempStr+"\n" )
 
-
 	sFactorAdjust = float(N_0) / (N_0 + (S+1))
-
 
 	for i in range(0,3*(N_0+S),3):
 		if i==0:
@@ -258,6 +256,7 @@ def solvate(inFile, N_0, S, n, m, force):
 	psfOut.close()
 
 	# Generates the file that indicates how strong the force is on each atom by modifying the occupancy column
+	force = (0.01439326)*force #convert from pN to kcal/(mol*angstrom)
 	strForce = str(force)
 	forceVal = "{:.4s}".format(strForce)
 	with open (pPath+inFile+"-solv.pdb") as f:
