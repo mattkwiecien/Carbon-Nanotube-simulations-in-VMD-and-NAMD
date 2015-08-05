@@ -264,7 +264,7 @@ def solvate(inFile, N_0, S, n, m, force):
 
 	for i in range(1,len(flines)-1):
 		if i < lenPdb-1:
-			flines[i] = flines[i][0:56]+forceVal+flines[i][60::]
+			flines[i] = flines[i][0:56]+"0.00"+flines[i][60::]
 		else:
 			flines[i] = flines[i][0:56]+forceVal+flines[i][60::]
 

@@ -5,7 +5,7 @@ function xyz = readdcd(filename, ind)
 % reads an dcd and puts the x,y,z coordinates corresponding to indices 
 % in the rows of x,y,z
 
-h = read_dcdheader(filename)
+h = read_dcdheader(filename);
 nsets = h.NSET;
 natoms = h.N;
 numind = length(ind);
