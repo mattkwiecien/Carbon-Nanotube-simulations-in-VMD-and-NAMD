@@ -1,7 +1,7 @@
 function [mean_vel, std_vel] = tempFind(fname)
 % loading moving atoms
-nAtoms = 187;
-length = 10;
+nAtoms = 3813;
+length = 200;
 atomlist = 1:nAtoms;
 xyzlist = readdcd(fname,atomlist);
 
@@ -19,8 +19,8 @@ vz = vz.*(20.45482706); %1 A/ps
 % mH = 1.674e-27;
 % mO = 2.657e-26;
 
-nCarbon = 160;
-nWater = 9;
+nCarbon = 3216;
+nWater = 199;
 nTot = nCarbon+(nWater*3);
 
 
@@ -34,6 +34,7 @@ nTot = nCarbon+(nWater*3);
 % KEhydro2 = zeros(nWater,length);
 
 vWater = zeros(nWater,length);
+vWater2 = zeros(nWater,length);
 
 
 for i = 1:length
@@ -43,6 +44,7 @@ for i = 1:length
 %    KEhydro2(:,i) = 0.5.*( mHydrogen .* sqrt(vx(i,nCarbon+3:3:nTot).^2 + vy(i,nCarbon+3:3:nTot).^2 + vz(i,nCarbon+3:3:nTot).^2).^2 );
 
    vWater(:,i) = sqrt( vx(i,nCarbon+1:3:nTot).^2 + vy(i,nCarbon+1:3:nTot).^2 + vz(i,nCarbon+1:3:nTot).^2 );
+   vWater2(:,i) = sqrt( vz(i,nCarbon+1:3:nTot).^2 );
 end
 
 % KEaveOxy = mean(KEoxy);
@@ -60,21 +62,21 @@ end
 % ylabel('Temperature (K)')
 % legend('Carbon','Oxygen', 'Hydrogen 1','Hydrogen 2')
 % title('T=1 K, L=10 ps, S = -1, 300 rings')
-
-plot(1:length, mean(vWater,1), '--*b','linewidth',2)
-hold on
-
-plot(1:length, mean(vx(:,nCarbon+1:3:nTot),2),'--r', 1:length, mean(vy(:,nCarbon+1:3:nTot),2),'--r', 1:length, mean(vz(:,nCarbon+1:3:nTot),2),'--k')
-hold on
-set(gca, 'fontsize', 14)
-xlabel('Time (ps)')
-ylabel('Velocity (A/ps)')
-legend('|v| water', 'vx water', 'vy water', 'vz water')
-title('f = 33 pN')
+% 
+% plot(1:length, mean(vWater2,1), '--*b','linewidth',2)
+% hold on
+% 
+% plot(1:length, mean(vx(:,nCarbon+1:3:nTot),2),'--r', 1:length, mean(vy(:,nCarbon+1:3:nTot),2),'--r', 1:length, mean(vz(:,nCarbon+1:3:nTot),2),'--k')
+% hold on
+% set(gca, 'fontsize', 14)
+% xlabel('Time (ps)')
+% ylabel('Velocity (A/ps)')
+% legend('|v| water', 'vx water', 'vy water', 'vz water')
+% title('f = 33 pN')
 
 % %(:,5:end)
-% mean_vel = mean(mean(vWater(:,5:end),1));
-% std_vel = std(mean(vWater(:,5:end),1));
+mean_vel = mean(mean(vWater2,1));
+std_vel = std(mean(vWater2,1));
 
 end
 
