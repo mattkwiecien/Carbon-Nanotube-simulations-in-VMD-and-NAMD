@@ -341,9 +341,9 @@ def getCNTBasis(CNT):
 
 	# Splits the first line of the CNT-prebond file, and finds the x,y,z basis vectors of the CNT 
 	basis = re.split('\s+',header)
-	xVec = eval(basis[1])+0.1
-	yVec = eval(basis[2])+0.1
-	zVec = eval(basis[3])+0.1
+	xVec = eval(basis[1])
+	yVec = eval(basis[2])
+	zVec = eval(basis[3])
 	
 	return xVec, yVec, zVec
 
