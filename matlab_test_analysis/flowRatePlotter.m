@@ -28,7 +28,7 @@ T75Std = zeros(1,15);
 
 for i = 1:15
     force = forces(i);
-    fname = sprintf('forceAdjust2_T_75K_F_%.2fpN.veldcd',force);
+    fname = sprintf('LowForcing_T_75K_F_%.2fpN.veldcd',force);
     try
         [T75Vel(i), T75Std(i)] = tempFind(fname,0);
     catch
@@ -43,7 +43,7 @@ T20Std = zeros(1,15);
 
 for i = 1:15
     force = forces(i);
-    fname = sprintf('forceAdjust_T_20K_F_%.2fpN.veldcd',force);
+    fname = sprintf('LowForcing_T_20K_F_%.2fpN.veldcd',force);
     try
         [T20Vel(i), T20Std(i)] = tempFind(fname,0);
     catch
@@ -58,7 +58,7 @@ T5Std = zeros(1,15);
 
 for i = 1:15
     force = forces(i);
-    fname = sprintf('forceAdjust_T_5K_F_%.2fpN.veldcd',force);
+    fname = sprintf('LowForcing_T_5K_F_%.2fpN.veldcd',force);
     try
         [T5Vel(i), T5Std(i)] = tempFind(fname,0);
     catch

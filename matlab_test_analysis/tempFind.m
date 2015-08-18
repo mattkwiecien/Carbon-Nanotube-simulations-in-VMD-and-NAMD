@@ -37,10 +37,10 @@ switch mode
         
         % Using vWater2 for the reasons above.
         
-        % vWater = zeros(nWater,length);
+        vWater = zeros(nWater,length);
         vWater2 = zeros(nWater,length); 
         for i = 1:length
-            % vWater(:,i) = sqrt( vx(i,nCarbon+1:3:nTot).^2 + vy(i,nCarbon+1:3:nTot).^2 + vz(i,nCarbon+1:3:nTot).^2 );
+            vWater(:,i) = sqrt( vx(i,nCarbon+1:3:nTot).^2 + vy(i,nCarbon+1:3:nTot).^2 + vz(i,nCarbon+1:3:nTot).^2 );
             vWater2(:,i) = sqrt( vz(i,nCarbon+1:3:nTot).^2 );
         end
         

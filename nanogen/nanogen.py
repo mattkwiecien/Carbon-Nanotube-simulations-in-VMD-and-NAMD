@@ -274,7 +274,7 @@ def solvate(inFile, N_0, S, n, m, force):
 		if i < lenPdb-1:
 			flines[i] = flines[i][0:56]+"0.00"+flines[i][60::]
 		else:
-			flines[i] = flines[i][0:56]+forceVal+flines[i][60::]
+			flines[i] = flines[i][0:33]+"0.000   0.000   1.000  "+forceVal+flines[i][60::]
 
 	outFile = open(pPath+inFile+"-force.pdb",'w')
 	outFile.writelines(flines)
@@ -341,9 +341,9 @@ def getCNTBasis(CNT):
 
 	# Splits the first line of the CNT-prebond file, and finds the x,y,z basis vectors of the CNT 
 	basis = re.split('\s+',header)
-	xVec = eval(basis[1])
-	yVec = eval(basis[2])
-	zVec = eval(basis[3])
+	xVec = eval(basis[1])+0.1
+	yVec = eval(basis[2])+0.1
+	zVec = eval(basis[3])+0.1
 	
 	return xVec, yVec, zVec
 
