@@ -1,4 +1,5 @@
 import numpy as np
+import nanogen as ng
 fname = "normForce_T_{0:s}K_F_{1:s}pN"
 
 for j in range(0,4):
@@ -12,7 +13,7 @@ for j in range(0,4):
 	elif j==3: 
 		Temp = 5
 
-	forces = np.logspace(-2,.8,15)
+	forces = np.logspace(-2,1,12)
 
 	for force in forces:
 		strForce = "{:.2f}".format(force) 

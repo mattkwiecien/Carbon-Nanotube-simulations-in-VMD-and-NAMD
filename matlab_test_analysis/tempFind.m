@@ -3,7 +3,7 @@ function [mean_vel, std_vel] = tempFind(fname,mode)
 % Total number of atoms
 nTot = 3813;
 % Length of simulations
-length = 80;
+length = 25;
 atomlist = 1:nTot;
 xyzlist = readdcd(fname,atomlist);
 
@@ -54,14 +54,14 @@ switch mode
         
         % Optional plotting if interested in seeing comparison between the
         % total magnitude of the velocity and the regular velocity.
-        % figure
-        % hold on
-        % set(gca, 'fontsize', 14)
-        % xlabel('Time (ps)')
-        % ylabel('Velocity (A/ps)')
-        % plot(1:length, mean(vWater2,1), '--*b','linewidth',2)
-        % plot(1:length, mean(vx(:,nCarbon+1:3:nTot),2),'--r', 1:length, mean(vy(:,nCarbon+1:3:nTot),2),'--r', 1:length, mean(vz(:,nCarbon+1:3:nTot),2),'--k')
-        % legend('|v| water', 'vx water', 'vy water', 'vz water')
+%         figure
+%         hold on
+%         set(gca, 'fontsize', 14)
+%         xlabel('Time (ps)')
+%         ylabel('Velocity (A/ps)')
+%         plot(1:length, mean(vWater2,1), '--*b','linewidth',2)
+%         plot(1:length, mean(vx(:,nCarbon+1:3:nTot),2),'--r', 1:length, mean(vy(:,nCarbon+1:3:nTot),2),'--r', 1:length, mean(vz(:,nCarbon+1:3:nTot),2),'--k')
+%         legend('|v| water', 'vx water', 'vy water', 'vz water')
         
     case 1
         
