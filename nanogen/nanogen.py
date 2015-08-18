@@ -11,6 +11,14 @@ from itertools import chain
 global basePath
 basePath = "/Users/nanotubes/Simulations/"
 
+# Maybe adding later... need to think more about the implementation
+# class Nanotube:
+
+# 	def __init__(self, rings, n, m):
+# 		self.rings = rings
+# 		self.n = n
+# 		self.m = m 
+
 # VMD generation of nanotube and periodic boundary conditions
 def tubeGen(inFile, pbcFile, N_0, n, m):
 	""" tubeGen creates a periodic nanotube with the following input parameters:  inFile 
