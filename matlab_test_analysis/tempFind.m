@@ -41,7 +41,7 @@ switch mode
         vWater2 = zeros(nWater,length); 
         for i = 1:length
             vWater(:,i) = sqrt( vx(i,nCarbon+1:3:nTot).^2 + vy(i,nCarbon+1:3:nTot).^2 + vz(i,nCarbon+1:3:nTot).^2 );
-            vWater2(:,i) = sqrt( vz(i,nCarbon+1:3:nTot).^2 );
+            vWater2(:,i) = vz(i,nCarbon+1:3:nTot);
         end
         
         % (:,5:end) is put in here to wait until the simulation
@@ -49,8 +49,8 @@ switch mode
         % by looking at different simulations, and could definitely be
         % improved.
         
-        mean_vel = mean(mean(vWater2(:,5:end),1));
-        std_vel = std(mean(vWater2(:,5:end),1));
+        mean_vel = mean(mean(vWater2,1));
+        std_vel = std(mean(vWater2,1));
         
         % Optional plotting if interested in seeing comparison between the
         % total magnitude of the velocity and the regular velocity.

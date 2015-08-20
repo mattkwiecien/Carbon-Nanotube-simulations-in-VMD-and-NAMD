@@ -1,6 +1,6 @@
 import numpy as np
 import nanogen as ng
-fname = "normForce_T_{0:s}K_F_{1:s}pN"
+fname = "CFix_T_{0:s}K_F_{1:s}pN"
 
 for j in range(0,4):
 
