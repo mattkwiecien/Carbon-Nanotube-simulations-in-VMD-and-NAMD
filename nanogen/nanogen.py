@@ -283,7 +283,7 @@ def solvate(inFile, N_0, S, n, m, force):
 	return pPath
 
 
-def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "waterSim"):
+def simWrite(pbcFile, CNTpath, minimize, temp = 300, length = 20000, output = "waterSim"):
 	""" simWrite generates a .conf file to use as input to namd2. To organize simulations
 	with different parameters, simWrite will create a directory for the simulation using 
 	the following template: ~/Simulations/cntl_nxm/temp/length/sim.dcd, sim.conf.  """
@@ -310,6 +310,7 @@ def simWrite(pbcFile, CNTpath, temp = 300, length = 20000, output = "waterSim"):
 	simLines[16] = "set outputname     "+simPath+output+"\n"
 	simLines[71] = "fixedAtomsFile      "+CNTpath+pbcFile+"-solv.pdb\n"
 	simLines[87] = "consforcefile 	    "+CNTpath+pbcFile+"-force.pdb\n"
+	simLines[93] = "minimize "+str(minimize)+"\n"
 	simLines[95] = "run {:5d} \n".format(length)
 
 	# Write contents out to original file
@@ -348,8 +349,8 @@ def getCNTBasis(CNT):
 	return xVec, yVec, zVec
 
 
-def main(FNAME,N_0,S,n,m,TEMP,LENGTH,FORCESTRENGTH):
+def main(FNAME,N_0,S,n,m,TEMP,LENGTH,FORCESTRENGTH,minimize):
 	pbcPath = solvate(FNAME,N_0,S,n,m,FORCESTRENGTH)
-	simPath = simWrite(FNAME,pbcPath,TEMP,LENGTH,FNAME)
+	simPath = simWrite(FNAME,pbcPath,minimize,TEMP,LENGTH,FNAME)
 	runSim(simPath)
 
