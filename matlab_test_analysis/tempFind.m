@@ -1,11 +1,11 @@
 function [mean_vel, std_vel, temps,stds] = tempFind(fin,nTot,temp,L,nRings,S,mode)
 % Parameters of Simulation
 fname = strcat('/Users/nanotubes/Simulations/cnt200_4x4/PBC/',num2str(temp),'/',num2str(L*1000),'/',fin);
-
 % Length of simulations
 atomlist = 1:nTot;
 xyzlist = readdcd(fname,atomlist);
 
+% L=100;
 % Extracting x y z velocities from the velocity matrix recovered from the
 % .veldcd file of simulation
 vx = xyzlist(:,1:3:end);
@@ -14,9 +14,9 @@ vz = xyzlist(:,3:3:end);
 
 % Velocities need to be multiplied by a factor to convert units to
 % angstroms/picosecond, done below
-vx = vx.*(20.45482706); %1 A/ps 
-vy = vy.*(20.45482706); %1 A/ps 
-vz = vz.*(20.45482706); %1 A/ps 
+vx = vx.*(20.45482706).*100; %1 A/ps 
+vy = vy.*(20.45482706).*100; %1 A/ps 
+vz = vz.*(20.45482706).*100; %1 A/ps 
 
 nWater = nRings+S;
 nCarbon = nTot - (nWater*3);
@@ -42,7 +42,7 @@ switch mode
     for i = 1:L
         %vWater(:,i) = sqrt( vx(i,nCarbon+2:3:nTot).^2 + vy(i,nCarbon+2:3:nTot).^2 + vz(i,nCarbon+2:3:nTot).^2 );
         % Velocity of all of the waters at 1 timestep of simulation
-        vWater2(:,i) = vz(i,nCarbon+2:3:nTot);
+        vWater2(:,i) = vz(i,nCarbon+1:3:nTot);
     end
 
     % (:,5:end) is put in here to wait until the simulation
@@ -67,6 +67,7 @@ switch mode
 %         legend('|v| water', 'vx water', 'vy water', 'vz water')
 
         temps = 0; stds = 0;
+
     case 1
     
     % Masses of different atoms
@@ -78,17 +79,37 @@ switch mode
     k = 1.38065e-23; %boltzmann J/K
 
     % Using the fact that KE = 1/2 mv^2 to find KE of each atom.
+    KEO_x = zeros(L,length(nCarbon+1:3:nTot));
+    KEO_y = zeros(L,length(nCarbon+1:3:nTot));
+    KEO_z = zeros(L,length(nCarbon+1:3:nTot));
+    
+    C_x = zeros(L,length(1:nCarbon));
+    C_y = zeros(L,length(1:nCarbon));
+    C_z = zeros(L,length(1:nCarbon));
+    
+    X_rat = zeros(1,L);
+    Y_rat = zeros(1,L);
+    Z_rat = zeros(1,L);
+    
+    % for L time steps
     for i = 1:L
 
-       KEO_x = (0.5*mO).*(vx(i,nCarbon+2:3:nTot).^2);
-       KEO_y = (0.5*mO).*(vy(i,nCarbon+2:3:nTot).^2);
-       KEO_z = (0.5*mO).*(vz(i,nCarbon+2:3:nTot).^2); % [KE] = kg m^2 s^-2
+       KEO_x(i,:) = (0.5*mO).*(vx(i,nCarbon+1:3:nTot).^2);
+       KEO_y(i,:) = (0.5*mO).*(vy(i,nCarbon+1:3:nTot).^2);
+       KEO_z(i,:) = (0.5*mO).*(vz(i,nCarbon+1:3:nTot).^2); % [KE] = kg m^2 s^-2
 
-       C_x = (0.5*mC).*(vx(i,1:nCarbon+1).^2);
-       C_y = (0.5*mC).*(vy(i,1:nCarbon+1).^2);
-       C_z = (0.5*mC).*(vz(i,1:nCarbon+1).^2);
+       C_x(i,:) = (0.5*mC).*(vx(i,1:nCarbon).^2);
+       C_y(i,:) = (0.5*mC).*(vy(i,1:nCarbon).^2);
+       C_z(i,:) = (0.5*mC).*(vz(i,1:nCarbon).^2);
        
+       X_rat(i) = mean(abs(vx(i,1:nCarbon))) / mean(abs(vx(i,nCarbon+1:3:nTot)));
+       Y_rat(i) = mean(abs(vy(i,1:nCarbon))) / mean(abs(vy(i,nCarbon+1:3:nTot)));
+       Z_rat(i) = mean(abs(vz(i,1:nCarbon))) / mean(abs(vz(i,nCarbon+1:3:nTot)));
+    
     end
+    fprintf('The ratio of v_{c}/v_{w} in the x-direction is %.4f.\n', mean(X_rat))
+    fprintf('The ratio of v_{c}/v_{w} in the y-direction is %.4f.\n', mean(Y_rat))
+    fprintf('The ratio of v_{c}/v_{w} in the z-direction is %.4f.\n', mean(Z_rat))
 
     % From the fact that KE = 3/2 k T we have
     %  T = 2 KE / k for each degree of freedom.
@@ -100,39 +121,46 @@ switch mode
     Cy = (2/k).*C_y;
     Cz = (2/k).*C_z;
     
-    Txmean = mean(Tx);
-    Tymean = mean(Ty);
-    Tzmean = mean(Tz);
+    Txmean = mean(Tx,2);
+    Tymean = mean(Ty,2);
+    Tzmean = mean(Tz,2);
     
-    Cxmean = mean(Cx);
-    Cymean = mean(Cy);
-    Czmean = mean(Cz);
+    Cxmean = mean(Cx,2);
+    Cymean = mean(Cy,2);
+    Czmean = mean(Cz,2);
     
-    stdx = std(Tx);
-    stdy = std(Ty);
-    stdz = std(Tz);
     
-    stdxc = std(Cx);
-    stdyc = std(Cy);
-    stdzc = std(Cz);
-    
-    temps = [Txmean,Tymean,Tzmean,Cxmean,Cymean,Czmean];
-    stds = [stdx,stdy,stdz,stdxc,stdyc,stdzc];
+    temps = [];
+    stds = [];
     
     % temporary to allow code to run
     mean_vel = 0;
     std_vel = 0;
 
-%     figure
-%     hold on
-%     set(gca,'fontsize',14)
-%     set(gca,'linewidth',2)
-%     xlabel('Time (ps)')
-%     ylabel('Temperature (K)')
-%     title('T_{therm} = 300K, F = 5.34pN')
-%     plot(1:199,Tx,'--*r', 1:199,Ty,'--*k', 1:199,Tz,'--*b')
-%     legend('T_{x}','T_{y}', 'T_{z}')
+    figure
+    hold on
+    box on
+    set(gca,'fontsize',16)
+    set(gca,'linewidth',2)
+    xlabel('Time (ps)')
+    ylabel('Temperature (K)')
+    
+    grey_color = [121 133 133] ./ 255;
+    red_color = [237 145 166] ./ 255;
+    blue_color = [186 206 254] ./ 255;
 
+    plot(1:L,Txmean,'--*r')
+    plot(1:L,Tymean,'--*k')
+    plot(1:L,Tzmean,'--*b')
+    plot(1:L,Cxmean,'-o','Color',red_color,'linewidth',2)
+    plot(1:L,Cymean,'-o','Color',grey_color,'linewidth',2)
+    plot(1:L,Czmean,'-o','Color',blue_color,'linewidth',2)
+
+    legend('Oxygen_{x}','Oxygen_{y}', 'Oxygen_{z}','Carbon_{x}','Carbon_{y}','Carbon_{z}')
+    title('200 ring (4,4) CNT, S = -1, 25 ps run with T_{Oxygen} = 5K')
+
+    
+    
 end
 
 

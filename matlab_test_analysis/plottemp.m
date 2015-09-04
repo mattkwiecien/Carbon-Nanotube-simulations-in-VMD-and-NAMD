@@ -1,5 +1,5 @@
 %plotthing
-file_prefix = 'FixedC2';
+file_prefix = 'RegimeCheck2';
 forces = [0.01, 0.01873817, 0.03511192, 0.06579332,...
     0.12328467, 0.23101297, 0.43287613, 0.81113083,...
     1.51991108, 2.84803587, 5.33669923, 10.];
@@ -9,9 +9,9 @@ stds = zeros(6,length(forces));
 
 for i = 1:length(forces)
     force = forces(i);
-    fname = sprintf(strcat(file_prefix,'_T_75K_F_%.2fpN.veldcd'),force);
+    fname = sprintf(strcat(file_prefix,'_T_300K_F_%.2fpN.veldcd'),force);
     
-    [~,~,temps(:,i),stds(:,i)] = tempFind(fname,3813,75,25,200,-1,1);
+    [~,~,temps(:,i),stds(:,i)] = tempFind(fname,3813,300,25,200,-1,1);
 
 end
 
