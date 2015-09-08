@@ -38,7 +38,7 @@ def tubeGen(inFile, pbcFile, N_0, n, m):
 		print "\nCannot currently create nanotubes with those dimensions.\n"
 
 	#calculates the length of the nanotube based on bond lengths
-	l = (N_0-1)*s*np.sqrt(3)
+	l = float((N_0-2))*s*np.sqrt(3)
 
 	tubePath = basePath+"cnt"+str(N_0)+"_"+str(n)+"x"+str(m)+"/"
 	pbcPath = tubePath+"PBC/"
@@ -107,20 +107,20 @@ def solvate(inFile, N_0, S, n, m, force):
 
 	# Bonds lengths for different armchair nanotubes
 	if n & m == 3:
-		s = 1.447 
+		s0 = 1.447 
 	elif n & m == 4:
-		s = 1.432
+		s0 = 1.432
 	elif n & m == 5:
-		s = 1.429 
+		s0 = 1.429 
 	elif n & m == 6:
-		s = 1.422
+		s0 = 1.422
 	else:
 		print "\nCannot currently create nanotubes with those dimensions.\n"
 
 	# Calculates the apothem of each regular hexagon in the nanotube and then calculates the distance
 	## between the center of each ring in the tube
 	#apothem = s*np.sqrt(3)/2
-	l = (N_0-1)*s*np.sqrt(3)
+	l = float((N_0-2))*s0*np.sqrt(3)
 	dist = l/(N_0-1)
 
 	# Initializing lists used below
