@@ -19,7 +19,7 @@ nCarbon = nTot - (nWater*3);
 Wells = zeros(1,nWater);
 
 for j = 1:nWater
-    lambda = (j-1)*2.480;
+    lambda = (j-1)*2.4678329536424579;
     Wells(j) = lambda;
 end
 
@@ -33,17 +33,17 @@ for i = 1:L
     end
     OxygenZ = z(i,nCarbon+1:3:nTot);
     u = OxygenZ - Wells; 
-    %u = u/lambda;
+%     u = u/lambda;
     
     
     hold on
     box on
     set(gca,'fontsize',16)
-    title(sprintf('(4,4) 200Ring CNT, 500ps, S = %d, minimize = %d',S,minimize))
-    ylabel('U_{i}/\lambda')
+    title(sprintf('(4,4) 200Ring CNT, %d ps, S = %d, minimize = %d',L,S,minimize))
+    ylabel('U_{i}')
     xlabel('i')
     xlim([1,nWater])
-    ylim([-1,1])
+    ylim([-5,5])
     plot(1:nWater,u,'-b','linewidth',2)
 
     pause(0.05)

@@ -1,4 +1,4 @@
-function [mean_vel, std_vel, temps,stds] = tempFind(fin,nTot,temp,L,nRings,S,mode)
+function [mean_vel, std_vel, temps,stds] = tempFind(fin,nTot,temp,L,nRings,S,mode,minimize)
 % Parameters of Simulation
 fname = strcat('/Users/nanotubes/Simulations/cnt200_4x4/PBC/',num2str(temp),'/',num2str(L*1000),'/',fin);
 % Length of simulations
@@ -107,9 +107,10 @@ switch mode
        Z_rat(i) = mean(abs(vz(i,1:nCarbon))) / mean(abs(vz(i,nCarbon+1:3:nTot)));
     
     end
-    fprintf('The ratio of v_{c}/v_{w} in the x-direction is %.4f.\n', mean(X_rat))
-    fprintf('The ratio of v_{c}/v_{w} in the y-direction is %.4f.\n', mean(Y_rat))
-    fprintf('The ratio of v_{c}/v_{w} in the z-direction is %.4f.\n', mean(Z_rat))
+%     minimize = 2;
+    fprintf('The ratio of v_{c}/v_{w} in the x-direction is %.4f.\n', mean(X_rat(minimize+1:end)))
+    fprintf('The ratio of v_{c}/v_{w} in the y-direction is %.4f.\n', mean(Y_rat(minimize+1:end)))
+    fprintf('The ratio of v_{c}/v_{w} in the z-direction is %.4f.\n', mean(Z_rat(minimize+1:end)))
 
     % From the fact that KE = 3/2 k T we have
     %  T = 2 KE / k for each degree of freedom.
@@ -140,6 +141,7 @@ switch mode
     figure
     hold on
     box on
+    xlim([minimize,25])
     set(gca,'fontsize',16)
     set(gca,'linewidth',2)
     xlabel('Time (ps)')
@@ -156,7 +158,7 @@ switch mode
     plot(1:L,Cymean,'-o','Color',grey_color,'linewidth',2)
     plot(1:L,Czmean,'-o','Color',blue_color,'linewidth',2)
 
-    legend('Oxygen_{x}','Oxygen_{y}', 'Oxygen_{z}','Carbon_{x}','Carbon_{y}','Carbon_{z}')
+%     legend('Oxygen_{x}','Oxygen_{y}', 'Oxygen_{z}','Carbon_{x}','Carbon_{y}','Carbon_{z}')
     title('200 ring (4,4) CNT, S = -1, 25 ps run with T_{Oxygen} = 5K')
 
     
