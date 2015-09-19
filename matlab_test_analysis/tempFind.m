@@ -1,6 +1,6 @@
 function [mean_vel, std_vel, temps,stds] = tempFind(fin,nTot,temp,L,nRings,S,mode,minimize)
 % Parameters of Simulation
-fname = strcat('/Users/nanotubes/Simulations/cnt200_4x4/PBC/',num2str(temp),'/',num2str(L*1000),'/',fin);
+fname = strcat('/Users/mkwieci2/Simulations/cnt200_4x4/PBC/',num2str(temp),'/',num2str(L*1000),'/',fin);
 % Length of simulations
 atomlist = 1:nTot;
 xyzlist = readdcd(fname,atomlist);

@@ -9,7 +9,7 @@ from itertools import chain
 
 
 global basePath
-basePath = "/Users/nanotubes/Simulations/"
+basePath = "/Users/mkwieci2/Simulations/"
 
 # Maybe adding later... need to think more about the implementation
 # class Nanotube:
@@ -96,9 +96,9 @@ def solvate(inFile, N_0, S, n, m, force):
 	hydro2 = "ATOM{0:>7}  H2  TIP3            0.000  -0.766{1:>8.3f}  0.00  0.00      TUB  H\n"
 
 	# Psf 
-	opsf = "     {:3d} TUB  {:3d}  TIP3 OH2  OT    -0.834000       15.9994           0\n"
-	h1psf = "     {:3d} TUB  {:3d}  TIP3 H1   HT     0.417000        1.0080           0\n"
-	h2psf = "     {:3d} TUB  {:3d}  TIP3 H2   HT     0.417000        1.0080           0\n"
+	opsf = "    {:3d} TUB  {:3d}  TIP3 OH2  OT    -0.834000       15.9994           0\n"
+	h1psf = "    {:3d} TUB  {:3d}  TIP3 H1   HT     0.417000        1.0080           0\n"
+	h2psf = "    {:3d} TUB  {:3d}  TIP3 H2   HT     0.417000        1.0080           0\n"
 
 	# String format for the bonds and angles in the psf file
 	sBondFormat = " {0: >8}{1: >8}{2: >8}{3: >8}{4: >8}{5: >8}{6: >8}{7: >8}\n"

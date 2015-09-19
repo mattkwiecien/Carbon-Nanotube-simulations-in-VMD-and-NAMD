@@ -1,6 +1,6 @@
 function atomVels(fin,temp,L,S)
 % Parameters of Simulation
-fname = strcat('/Users/nanotubes/Simulations/cnt200_4x4/PBC/',num2str(temp),'/',num2str(L*1000),'/',fin);
+fname = strcat('/Users/mkwieci2/Simulations/cnt200_4x4/PBC/',num2str(temp),'/',num2str(L*1000),'/',fin);
 % Length of simulations
 nTot = 3813;
 nRings = 200;
