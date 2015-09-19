@@ -7,7 +7,7 @@ import os
 import re
 from itertools import chain
 
-
+ 
 global basePath
 basePath = "/Users/mkwieci2/Simulations/"
 
