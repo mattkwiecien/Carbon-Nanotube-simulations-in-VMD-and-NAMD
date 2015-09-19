@@ -26,19 +26,9 @@ def tubeGen(inFile, pbcFile, N_0, n, m):
 	the name of the same nanotube but now with periodic boundary conditions applied to it. """
 
 	#Bonds lengths of different armchair nanotubes in nanometers
-	if n & m == 3:
-		s = 0.1447 #nm
-	elif n & m == 4:
-		s = 0.1432
-	elif n & m == 5:
-		s = 0.1429 #nm
-	elif n & m == 6:
-		s = 0.1422
-	else:
-		print "\nCannot currently create nanotubes with those dimensions.\n"
-
+	s0 = .1418
 	#calculates the length of the nanotube based on bond lengths
-	l = float((N_0-1))*s*np.sqrt(3)
+	l = float((N_0-0.75))*s0*np.sqrt(3)
 
 	tubePath = basePath+"cnt"+str(N_0)+"_"+str(n)+"x"+str(m)+"/"
 	pbcPath = tubePath+"PBC/"
@@ -106,22 +96,12 @@ def solvate(inFile, N_0, S, n, m, force):
 
 
 	# Bonds lengths for different armchair nanotubes
-	if n & m == 3:
-		s0 = 1.447 
-	elif n & m == 4:
-		s0 = 1.432
-	elif n & m == 5:
-		s0 = 1.429 
-	elif n & m == 6:
-		s0 = 1.422
-	else:
-		print "\nCannot currently create nanotubes with those dimensions.\n"
-
+	s0 = 1.418
 	# Calculates the apothem of each regular hexagon in the nanotube and then calculates the distance
 	## between the center of each ring in the tube
 	#apothem = s*np.sqrt(3)/2
-	l = float((N_0-1))*s0*np.sqrt(3)
-	dist = l/(N_0)
+	l = float((N_0-0.75))*s0*np.sqrt(3)
+	dist = s0*np.sqrt(3)
 
 	# Initializing lists used below
 	atoms = []
@@ -232,13 +212,13 @@ def solvate(inFile, N_0, S, n, m, force):
 
 			anglesFinal.append( " "+tempStr+"\n" )
 
-	sFactorAdjust = float(N_0) / (N_0 + (S+1))
+	sFactorAdjust = float(N_0) / (N_0 + S)
 
 	for i in range(0,3*(N_0+S),3):
 		if i==0:
-			pdbLines[lenPdb-1] = oxygen.format(nAtoms+1, 0)
-			pdbLines.append( hydro1.format(nAtoms+(i+2), 0.570) )
-			pdbLines.append( hydro2.format(nAtoms+(i+3), 0.570) )
+			pdbLines[lenPdb-1] = oxygen.format(nAtoms+1, 0.03)
+			pdbLines.append( hydro1.format(nAtoms+(i+2), 0.60) )
+			pdbLines.append( hydro2.format(nAtoms+(i+3), 0.60) )
 		
 		else:
 			pdbLines.append( oxygen.format(nAtoms+i+1, ((i/3)*dist*sFactorAdjust)) )
