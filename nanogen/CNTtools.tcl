@@ -25,17 +25,13 @@ proc fixNT {molnm} {
   set all0 [atomselect top all]
   $all0 set beta 0
 
-  # # Finds the number of atoms in the nanotube 
+  # Finds the number of atoms in the nanotube 
   set strArr [$all0 list]
   set count 0
   foreach num $strArr { set count [expr $count+1] }
-  #fixes 5 atoms in the center of the nanotube TEMPORARY  
-  # set fix [ atomselect top "index > [expr $count/4 - 20] and index < [expr $count/4 + 20]" ]
-  # $fix set beta 1
-  set fix2 [ atomselect top "index > [expr $count/2 - 20] and index < [expr $count/2 + 20]" ]
-  $fix2 set beta 1
-  # set fix3 [ atomselect top "index > [expr $count*3/4 - 20] and index < [expr $count*3/4 + 20]" ]
-  # $fix3 set beta 1
+
+  set fix2 [ atomselect top "index > [expr $count/2 - 2] and index < [expr $count/2 + 2]" ]
+  $fix2 set beta 1.00
   
   set all [atomselect top all]
   $all writepsf $molnm.psf
