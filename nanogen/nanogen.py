@@ -7,7 +7,7 @@ import os
 import re
 from itertools import chain
 
- 
+
 global basePath
 basePath = "/Users/mkwieci2/Simulations/"
 
@@ -216,9 +216,9 @@ def solvate(inFile, N_0, S, n, m, force):
 
 	for i in range(0,3*(N_0+S),3):
 		if i==0:
-			pdbLines[lenPdb-1] = oxygen.format(nAtoms+1, 0.03)
-			pdbLines.append( hydro1.format(nAtoms+(i+2), 0.60) )
-			pdbLines.append( hydro2.format(nAtoms+(i+3), 0.60) )
+			pdbLines[lenPdb-1] = oxygen.format(nAtoms+1, 0.000)
+			pdbLines.append( hydro1.format(nAtoms+(i+2), 0.570) )
+			pdbLines.append( hydro2.format(nAtoms+(i+3), 0.570) )
 		
 		else:
 			pdbLines.append( oxygen.format(nAtoms+i+1, ((i/3)*dist*sFactorAdjust)) )
