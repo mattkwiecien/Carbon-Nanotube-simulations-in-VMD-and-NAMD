@@ -1,6 +1,6 @@
 function displacementSim(fin,temp,L,nRings,S,minimize)
 % Parameters of Simulation
-fname = strcat('/Users/mkwieci2/Simulations/cnt20_4x4/PBC/',num2str(temp),'/',num2str(L*1000),'/',fin);
+fname = strcat('/Users/mkwieci2/Simulations/cnt600_4x4/PBC/',num2str(temp),'/',num2str(L*1000),'/',fin);
 % Length of simulations
 Nfactor = 16;
 
@@ -25,7 +25,7 @@ for j = 1:nWater
     lambda = (j-1)*(1.418*sqrt(3));
     Wells(j) = lambda;
 end
-% Wells = Wells - 0.5;
+Wells = Wells - 1.5;
 
 lambda = (1.418*sqrt(3));
 
@@ -38,23 +38,21 @@ for i = 1:L
         break
     end
     OxygenZ = z(i,nCarbon+1:3:nTot);
-    u = OxygenZ - Wells 
+    u = OxygenZ - Wells;
     u = u/lambda;
     
     
     hold on
     box on
     set(gca,'fontsize',16)
-    title(sprintf('(4,4) 200Ring CNT, %d ps, S = %d, minimize = %d',L,S,minimize))
+%     title(sprintf('(4,4) 200Ring CNT, %d ps, S = %d, minimize = %d',L,S,minimize))
     ylabel('U_{i}/\lambda')
     xlabel('i')
     xlim([1,nWater])
-    ylim([-1.4,1.4])
-    plot(1:nWater,u,'-ob','linewidth',1)
-
-    
-    OxygenZ
-   
-    pause
+    ylim([-1,3])
+    plot(1:nWater,u,'-b','linewidth',2)
+%     title('(4,4) 200 Ring CNT, S = -1, heated carbons')
+%   pause
+    pause(0.1)
 
 end
