@@ -3,7 +3,7 @@ function displacementSim(fin,temp,L,nRings,S,M)
 fname = strcat('/Users/mkwieci2/Simulations/cnt600_4x4/PBC/',num2str(temp),'/',num2str(L*1000),'/',fin);
 % Length of simulations
 Nfactor = 16;
-
+%test
 nWater = nRings+S;
 nTot = (nRings*Nfactor)+(nWater*3);
 atomlist =  1:nTot;
