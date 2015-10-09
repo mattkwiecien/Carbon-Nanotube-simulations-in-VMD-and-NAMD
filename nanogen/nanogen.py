@@ -31,7 +31,7 @@ def tubeGen(inFile, pbcFile, N_0, n, m):
 	l = float((N_0-0.75))*s0*np.sqrt(3)
 
 	tubePath = basePath+"cnt"+str(N_0)+"_"+str(n)+"x"+str(m)+"/"
-	pbcPath = tubePath+"PBC/"
+	pbcPath = tubePath+"PBC/"+inFile+"_run/"
 	if ~os.path.exists(pbcPath):
 		os.system("mkdir -p "+pbcPath)
 
@@ -68,6 +68,8 @@ def solvate(inFile, N_0, S, n, m, force):
 	the nanotube, then write out new psf and pdb files for the nanotube. """
 	tPath, pPath = tubeGen(inFile,inFile,N_0,n,m)
 
+	os.system("rm "+tPath+inFile+".pdb")
+	os.system("rm "+tPath+inFile+".psf")
 	# Opens input nanotube psf and pdb files, and reads all the lines of each file into lists
 	with open(pPath+inFile+".psf") as psfFile:
 		psfLines = psfFile.readlines()
@@ -86,9 +88,9 @@ def solvate(inFile, N_0, S, n, m, force):
 	hydro2 = "ATOM{0:>7}  H2  TIP3            0.000  -0.766{1:>8.3f}  0.00  0.00      TUB  H\n"
 
 	# Psf 
-	opsf = "    {:3d} TUB  {:3d}  TIP3 OH2  OT    -0.834000       15.9994           0\n"
-	h1psf = "    {:3d} TUB  {:3d}  TIP3 H1   HT     0.417000        1.0080           0\n"
-	h2psf = "    {:3d} TUB  {:3d}  TIP3 H2   HT     0.417000        1.0080           0\n"
+	opsf = "    {0:>5} TUB  {1:>5}  TIP3 OH2  OT    -0.834000       15.9994           0\n"
+	h1psf = "    {0:>5} TUB  {1:>5}  TIP3 H1   HT     0.417000        1.0080           0\n"
+	h2psf = "    {0:>5} TUB  {1:>5}  TIP3 H2   HT     0.417000        1.0080           0\n"
 
 	# String format for the bonds and angles in the psf file
 	sBondFormat = " {0: >8}{1: >8}{2: >8}{3: >8}{4: >8}{5: >8}{6: >8}{7: >8}\n"
@@ -254,11 +256,31 @@ def solvate(inFile, N_0, S, n, m, force):
 		if i < lenPdb-1:
 			flines[i] = flines[i][0:56]+"0.00"+flines[i][60::]
 		else:
-			flines[i] = flines[i][0:33]+"0.000   0.000   1.000  "+forceVal+flines[i][60::]
+			if "OH2" in flines[i]:
+				flines[i] = flines[i][0:33]+"0.000   0.000   1.000  "+forceVal+flines[i][60::]
+			else:
+				flines[i] = flines[i][0:56]+"0.00"+flines[i][60::]
+
 
 	outFile = open(pPath+inFile+"-force.pdb",'w')
 	outFile.writelines(flines)
 	outFile.close()
+
+	# Generate a file that restrains each carbon atom to it's initial position with force constant k
+
+	kVal = 1.00
+	with open (pPath+inFile+"-solv.pdb") as kFile:
+		kfLines = kFile.readlines()
+
+	for i in range(1,len(kfLines)-1):
+		if i < lenPdb-1:
+			kfLines[i] = kfLines[i][0:56]+"{:.2f}".format(kVal)+kfLines[i][60::]
+		else:
+			kfLines[i] = kfLines[i][0:56]+"{:.2f}".format(0.00)+kfLines[i][60::]
+
+	outkFile = open(pPath+inFile+"-restraint.pdb",'w')
+	outkFile.writelines(kfLines)
+	outkFile.close()
 
 	return pPath
 
@@ -289,9 +311,13 @@ def simWrite(pbcFile, CNTpath, minimize, temp = 300, length = 20000, output = "w
 
 	simLines[16] = "set outputname     "+simPath+output+"\n"
 	simLines[71] = "fixedAtomsFile      "+CNTpath+pbcFile+"-solv.pdb\n"
-	simLines[87] = "consforcefile 	    "+CNTpath+pbcFile+"-force.pdb\n"
-	simLines[93] = "minimize "+str(minimize)+"\n"
-	simLines[95] = "run {:5d} \n".format(length)
+	simLines[75] = "consref 			"+CNTpath+pbcFile+"-restraint.pdb\n"
+	simLines[76] = "conskfile			"+CNTpath+pbcFile+"-restraint.pdb\n"
+	simLines[78] = "constraintScaling 	"+"{:.2f}".format(1.00)
+
+	simLines[94] = "consforcefile 	    "+CNTpath+pbcFile+"-force.pdb\n"
+	simLines[100] = "minimize "+str(minimize)+"\n"
+	simLines[102] = "run {:5d} \n".format(length)
 
 	# Write contents out to original file
 	if os.path.exists(simPath):
