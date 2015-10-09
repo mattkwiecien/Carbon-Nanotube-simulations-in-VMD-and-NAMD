@@ -15,13 +15,13 @@ vy = xyzlist(:,2:3:end);
 vz = xyzlist(:,3:3:end);
 % Velocities need to be multiplied by a factor to convert units to
 % angstroms/picosecond, done below
-vx = vx.*(20.45482706).*100; %1 A/ps 
-vy = vy.*(20.45482706).*100; %1 A/ps 
-vz = vz.*(20.45482706).*100; %1 A/ps 
-L = L+M;
+vx = vx.*(20.45482706).*1000; %1 A/ps 
+vy = vy.*(20.45482706).*1000; %1 A/ps 
+vz = vz.*(20.45482706).*1000; %1 A/ps 
+
 vWater = zeros(nWater,L); 
-for i = 1:L
-    vWater(:,i) = vz(i,nCarbon+1:3:nTot);
+for i = M+1:L+M
+    vWater(:,i-8) = vz(i,nCarbon+1:3:nTot);
 end
 
 %mean of each oxygen atom's velocity over the simulation
@@ -33,10 +33,11 @@ figure
 hold on
 box on
 set(gca,'fontsize',14)
-errorbar(1:L,mean_vel,std_vel,'--*b','linewidth',2)
-ylabel('v_{z} (A/ps)')
+% errorbar(1:L,mean_vel,std_vel,'--*b','linewidth',2)
+plot(1:L,mean_vel,'--*b','linewidth',1)
+ylabel('Flowrate (A/ns)')
 xlabel('Time (ps)')
-title('Flowrate vs Time for 50ps simulation with force = ')
+title('Flowrate vs Time for 0.5ns simulation with F=0.80pN')
 
 end
 
