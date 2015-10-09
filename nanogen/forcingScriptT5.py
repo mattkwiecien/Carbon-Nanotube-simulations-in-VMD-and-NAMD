@@ -1,9 +1,9 @@
 import numpy as np
 import nanogen as ng
-fname = "Oct1_Run{0:s}_F{1:s}pN"
-forces = [0.025, 0.05, 0.1, 0.2]
+fname = "meetOct1_Run{0:s}_F{1:s}pN"
+forces = [0.03, 0.05, 0.1, 0.2, 0.4, 0.8]
 
-for i in range(1,3):
+for i in range(1,5):
 
 	for force in forces:
 		
