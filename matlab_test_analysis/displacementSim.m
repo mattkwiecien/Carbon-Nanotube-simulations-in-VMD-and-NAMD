@@ -1,4 +1,4 @@
-function displacementSim(fin,temp,L,nRings,S,minimize)
+function displacementSim(fin,temp,L,nRings,S,M)
 % Parameters of Simulation
 fname = strcat('/Users/mkwieci2/Simulations/cnt600_4x4/PBC/',num2str(temp),'/',num2str(L*1000),'/',fin);
 % Length of simulations
@@ -30,7 +30,7 @@ Wells = Wells - 1.5;
 lambda = (1.418*sqrt(3));
 
 f = figure;
-for i = 1:L
+for i = 1:L+M
     
     try
         clf(f);
@@ -49,7 +49,7 @@ for i = 1:L
     ylabel('U_{i}/\lambda')
     xlabel('i')
     xlim([1,nWater])
-    ylim([-1,3])
+    ylim([-1,10])
     plot(1:nWater,u,'-b','linewidth',2)
 %     title('(4,4) 200 Ring CNT, S = -1, heated carbons')
 %   pause
