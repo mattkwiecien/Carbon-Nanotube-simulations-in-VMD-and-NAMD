@@ -9,12 +9,10 @@ proc genNT {molnm path l n m} {
   # Create a nantube of length l with nxm structure
   nanotube -l $l -n $n -m $m
   set mymol [atomselect top all]
-
   # saves nanotube in new directory
   set molpath ${path}${molnm}
   $mymol writepsf $molpath.psf
   $mymol writepdb $molpath.pdb
-
 }
 
 proc fixNT {molnm} {
@@ -24,14 +22,6 @@ proc fixNT {molnm} {
 
   set all0 [atomselect top all]
   $all0 set beta 0
-
-  # Finds the number of atoms in the nanotube 
-  # set strArr [$all0 list]
-  # set count 0
-  # foreach num $strArr { set count [expr $count+1] }
-
-  # set fix2 [ atomselect top "index > [expr $count/2 - 2] and index < [expr $count/2 + 2]" ]
-  # $fix2 set beta 1.00
   
   set all [atomselect top all]
   $all writepsf $molnm.psf
@@ -46,7 +36,6 @@ proc removeLangevinWater {molnm} {
 
   set all0 [atomselect top all]
   $all0 set occupancy 5.00
-
 
   set all [atomselect top all]
   $all writepsf $molnm.psf

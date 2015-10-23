@@ -25,11 +25,12 @@ def tubeGen(inFile, pbcFile, N_0, n, m):
 	is the name of the initial nanotube with number of rings N_0 and dimensions n x m.  pbcFile is 
 	the name of the same nanotube but now with periodic boundary conditions applied to it. """
 
-	#Bonds lengths of different armchair nanotubes in nanometers
-	s0 = .1418
+	#Bonds lengths nanotubes used in VMD nanotube package
+	s0 = .1418 # nanometers
 	#calculates the length of the nanotube based on bond lengths
 	l = float((N_0-0.75))*s0*np.sqrt(3)
 
+	# Creates the path for the data to be stored in if it does not already exist
 	tubePath = basePath+"cnt"+str(N_0)+"_"+str(n)+"x"+str(m)+"/"
 	pbcPath = tubePath+"PBC/"+inFile+"_run/"
 	if ~os.path.exists(pbcPath):
@@ -64,12 +65,15 @@ def tubeGen(inFile, pbcFile, N_0, n, m):
 
 
 def solvate(inFile, N_0, S, n, m, force):
-	""" The solvate module will create an armchair swcnt with N_0 rings and add N_0+S water molecules inside
-	the nanotube, then write out new psf and pdb files for the nanotube. """
+	""" The solvate module will create an (n,n) armchair nanotube with N_0 rings and add N_0+S water molecules inside
+	the nanotube, then write out new psf and pdb files for the nanotube, as well as create the restraining and force 
+	pdb files used in the simulation. """
 	tPath, pPath = tubeGen(inFile,inFile,N_0,n,m)
 
+	# removes the original non-periodic files
 	os.system("rm "+tPath+inFile+".pdb")
 	os.system("rm "+tPath+inFile+".psf")
+	
 	# Opens input nanotube psf and pdb files, and reads all the lines of each file into lists
 	with open(pPath+inFile+".psf") as psfFile:
 		psfLines = psfFile.readlines()
@@ -82,7 +86,6 @@ def solvate(inFile, N_0, S, n, m, force):
 
 	# String formats for the PSF and PDB file writing
 	# Pdb 
-	dampingCoeff = 0.00
 	oxygen = "ATOM{0:>7}  OH2 TIP3            0.000   0.000{1:>8.3f}  0.00  0.00      TUB  O\n"
 	hydro1 = "ATOM{0:>7}  H1  TIP3            0.000   0.766{1:>8.3f}  0.00  0.00      TUB  H\n"
 	hydro2 = "ATOM{0:>7}  H2  TIP3            0.000  -0.766{1:>8.3f}  0.00  0.00      TUB  H\n"
@@ -96,12 +99,10 @@ def solvate(inFile, N_0, S, n, m, force):
 	sBondFormat = " {0: >8}{1: >8}{2: >8}{3: >8}{4: >8}{5: >8}{6: >8}{7: >8}\n"
 	sAngleFormat = " {0: >8}{1: >8}{2: >8}{3: >8}{4: >8}{5: >8}{6: >8}{7: >8}{8: >8}\n"
 
-
-	# Bonds lengths for different armchair nanotubes
+	# Bonds lengths now in angstroms
 	s0 = 1.418
 	# Calculates the apothem of each regular hexagon in the nanotube and then calculates the distance
 	## between the center of each ring in the tube
-	#apothem = s*np.sqrt(3)/2
 	l = float((N_0-0.75))*s0*np.sqrt(3)
 	dist = s0*np.sqrt(3)
 
@@ -214,8 +215,9 @@ def solvate(inFile, N_0, S, n, m, force):
 
 			anglesFinal.append( " "+tempStr+"\n" )
 
+	# Scales the placement of each water based on the mismatch parameter, S
 	sFactorAdjust = float(N_0) / (N_0 + S)
-
+	# Places the waters equal distances apart in the center of each carbon ring
 	for i in range(0,3*(N_0+S),3):
 		if i==0:
 			pdbLines[lenPdb-1] = oxygen.format(nAtoms+1, 0.000)
@@ -246,9 +248,7 @@ def solvate(inFile, N_0, S, n, m, force):
 	psfOut.close()
 
 	# Generates the file that indicates how strong the force is on each atom by modifying the occupancy column
-
 	forceVal = "{:.2f}".format(force)
-
 	with open (pPath+inFile+"-solv.pdb") as f:
 		flines = f.readlines()
 
@@ -261,14 +261,13 @@ def solvate(inFile, N_0, S, n, m, force):
 			else:
 				flines[i] = flines[i][0:56]+"0.00"+flines[i][60::]
 
-
+	# Writes out the file
 	outFile = open(pPath+inFile+"-force.pdb",'w')
 	outFile.writelines(flines)
 	outFile.close()
 
 	# Generate a file that restrains each carbon atom to it's initial position with force constant k
-
-	kVal = 1.00
+	kVal = 3.00
 	with open (pPath+inFile+"-solv.pdb") as kFile:
 		kfLines = kFile.readlines()
 
@@ -277,7 +276,7 @@ def solvate(inFile, N_0, S, n, m, force):
 			kfLines[i] = kfLines[i][0:56]+"{:.2f}".format(kVal)+kfLines[i][60::]
 		else:
 			kfLines[i] = kfLines[i][0:56]+"{:.2f}".format(0.00)+kfLines[i][60::]
-
+	# Writes out the file
 	outkFile = open(pPath+inFile+"-restraint.pdb",'w')
 	outkFile.writelines(kfLines)
 	outkFile.close()
