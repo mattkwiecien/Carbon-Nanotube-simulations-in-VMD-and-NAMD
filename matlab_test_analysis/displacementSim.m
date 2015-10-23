@@ -3,14 +3,15 @@ function displacementSim(fin,temp,L,nRings,S,M,N,force,c_status)
 fname = strcat('/Users/Guru/Desktop/',fin,'_run/',num2str(temp),'/',num2str(L*1000),...
     '/',fin,'.dcd');
 
+% Strings for figure title.
 ts1 = strcat(c_status,' (',num2str(N),'x',num2str(N),') Nanotube with S=',num2str(S));
 ts2 = strcat('Force=',num2str(force),'pN over L=',num2str(L),' ps at',' T=',num2str(temp),'K');
 
 % Figure parameters
-width = 10;     % Width in inches
-height = 6;    % Height in inches
-alw = 0.5;    % AxesLineWidth
-fsz = 11;      % Fontsize
+width = 10;     
+height = 6;    
+alw = 0.5;
+fsz = 11;
 
 
 % Specific factor for different (n,m) nanotubes
@@ -26,6 +27,7 @@ xyzlist = readdcd(fname,atomlist);
 z = xyzlist(:,3:3:end); %Angstroms
 Wells = zeros(1,nWater);
 
+%Creating a vector with the potential well locations
 for j = 1:nWater
     lambda = (j-1)*(1.418 *sqrt(3));
     Wells(j) = lambda;
@@ -47,6 +49,8 @@ xlabel('i')
 xlim([1,nWater])
 ylim([-1,3])
 pause
+% Subtracting the difference between the axial displacment of each water
+% molecule and it's respective starting potential well.
 for i = 1:10:L
     
     try
